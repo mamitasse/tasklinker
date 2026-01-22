@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Task index{% endblock %}
+
+{% block body %}
+    <h1>Task index</h1>
+
+    {# On suppose que le controller envoie aussi "project" à la vue #}
+    <p>
+        Projet : <strong>{{ project.name }}</strong> (id: {{ project.id }})
+    </p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>CreatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.createdAt ? task.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_project_tasks_show', {'projectId': project.id, 'id': task.id}) }}">show</a>
+                    <a href="{{ path('app_project_tasks_edit', {'projectId': project.id, 'id': task.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_project_tasks_new', {'id': project.id}) }}">Create new</a>
+{% endblock %}
