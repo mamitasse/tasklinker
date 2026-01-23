@@ -23,13 +23,26 @@ class Task
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $deadline = null;
+
+    /**
+     * Projet auquel appartient la tâche (OBLIGATOIRE)
+     */
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 
+    /**
+     * Utilisateur assigné (optionnel)
+     */
     #[ORM\ManyToOne(inversedBy: 'tasks')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $assignee = null;
 
+    /**
+     * Statut de la tâche (To Do / Doing / Done)
+     */
     #[ORM\ManyToOne(inversedBy: 'tasks')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Status $status = null;
@@ -38,6 +51,10 @@ class Task
     {
         $this->createdAt = new \DateTimeImmutable();
     }
+
+    // =======================
+    // Getters & Setters
+    // =======================
 
     public function getId(): ?int
     {
@@ -52,7 +69,6 @@ class Task
     public function setTitle(string $title): static
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -64,7 +80,6 @@ class Task
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -76,7 +91,17 @@ class Task
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
 
+    public function getDeadline(): ?\DateTimeImmutable
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(?\DateTimeImmutable $deadline): static
+    {
+        $this->deadline = $deadline;
         return $this;
     }
 
@@ -85,11 +110,12 @@ class Task
         return $this->project;
     }
 
-    // Project est non-nullable en base
+    /**
+     * Project est NON NULLABLE
+     */
     public function setProject(Project $project): static
     {
         $this->project = $project;
-
         return $this;
     }
 
@@ -98,11 +124,12 @@ class Task
         return $this->assignee;
     }
 
-    // assignee est nullable
+    /**
+     * Assignee est nullable
+     */
     public function setAssignee(?User $assignee): static
     {
         $this->assignee = $assignee;
-
         return $this;
     }
 
@@ -111,11 +138,12 @@ class Task
         return $this->status;
     }
 
-    // Status est non-nullable en base
+    /**
+     * Status est NON NULLABLE
+     */
     public function setStatus(Status $status): static
     {
         $this->status = $status;
-
         return $this;
     }
 }

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
+use App\Repository\StatusRepository;
 use App\Repository\TaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,13 +16,14 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/project')]
 final class ProjectController extends AbstractController
 {
-    #[Route(name: 'app_project_index', methods: ['GET'])]
+    #[Route('/', name: 'app_project_index', methods: ['GET'])]
     public function index(ProjectRepository $projectRepository): Response
     {
-        // Si tu veux afficher seulement les projets du user connecté :
-        // $projects = $projectRepository->findBy(['owner' => $this->getUser()]);
-        // Sinon, laisse findAll()
-        $projects = $projectRepository->findAll();
+        // Afficher uniquement les projets non archivés
+        $projects = $projectRepository->findBy(
+            ['archivedAt' => null],
+            ['id' => 'ASC']
+        );
 
         return $this->render('project/index.html.twig', [
             'projects' => $projects,
@@ -29,23 +31,17 @@ final class ProjectController extends AbstractController
     }
 
     #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $project = new Project();
-
-        // ✅ Règles métier : owner + createdAt automatiques
-        $project->setOwner($this->getUser());
         $project->setCreatedAt(new \DateTimeImmutable());
 
-        $form = $this->createForm(ProjectType::class, $project, [
-            // on peut aussi enlever les champs côté FormType,
-            // mais même si le champ existe, on impose la valeur ici
-        ]);
+        $form = $this->createForm(ProjectType::class, $project);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($project);
-            $entityManager->flush();
+            $em->persist($project);
+            $em->flush();
 
             return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -57,29 +53,64 @@ final class ProjectController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_project_show', methods: ['GET'])]
-    public function show(Project $project): Response
-    {
+    public function show(
+        Project $project,
+        TaskRepository $taskRepository,
+        StatusRepository $statusRepository
+    ): Response {
+        // Si archivé -> 404
+        if ($project->isArchived()) {
+            throw $this->createNotFoundException();
+        }
+
+        // Statuts "To Do / Doing / Done"
+        $statusTodo  = $statusRepository->findOneBy(['label' => 'To Do']);
+        $statusDoing = $statusRepository->findOneBy(['label' => 'Doing']);
+        $statusDone  = $statusRepository->findOneBy(['label' => 'Done']);
+
+        if (!$statusTodo || !$statusDoing || !$statusDone) {
+            throw $this->createNotFoundException(
+                'Statuts manquants. Vérifie tes fixtures Status: To Do / Doing / Done.'
+            );
+        }
+
+        // Tâches par statut
+        $todo = $taskRepository->findBy(
+            ['project' => $project, 'status' => $statusTodo],
+            ['id' => 'ASC']
+        );
+
+        $doing = $taskRepository->findBy(
+            ['project' => $project, 'status' => $statusDoing],
+            ['id' => 'ASC']
+        );
+
+        $done = $taskRepository->findBy(
+            ['project' => $project, 'status' => $statusDone],
+            ['id' => 'ASC']
+        );
+
         return $this->render('project/show.html.twig', [
             'project' => $project,
+            'todo' => $todo,
+            'doing' => $doing,
+            'done' => $done,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_project_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Project $project, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Project $project, EntityManagerInterface $em): Response
     {
-        // ✅ Protection : seul le owner peut modifier
-        if ($project->getOwner() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous ne pouvez pas modifier ce projet.');
+        if ($project->isArchived()) {
+            throw $this->createNotFoundException();
         }
 
         $form = $this->createForm(ProjectType::class, $project);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // owner/createdAt restent cohérents (on ne laisse pas l’utilisateur les trafiquer)
-            $project->setOwner($this->getUser());
+            $em->flush();
 
-            $entityManager->flush();
             return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -89,40 +120,25 @@ final class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_project_delete', methods: ['POST'])]
-    public function delete(Request $request, Project $project, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/archive', name: 'app_project_archive', methods: ['POST'])]
+    public function archive(Request $request, Project $project, EntityManagerInterface $em): Response
     {
-        // ✅ Protection : seul le owner peut supprimer
-        if ($project->getOwner() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous ne pouvez pas supprimer ce projet.');
+        if ($project->isArchived()) {
+            return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('delete'.$project->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($project);
-            $entityManager->flush();
+        if ($this->isCsrfTokenValid('archive' . $project->getId(), (string) $request->request->get('_token'))) {
+            $project->setArchivedAt(new \DateTimeImmutable());
+            $em->flush();
         }
 
         return $this->redirectToRoute('app_project_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    // ✅ La page clé de l’énoncé : afficher les tâches d’un projet
+    // Optionnel (si tu l'avais dans l'énoncé / maquette)
     #[Route('/{id}/tasks', name: 'app_project_tasks', methods: ['GET'])]
-    public function tasks(Project $project, TaskRepository $taskRepository): Response
+    public function tasks(Project $project): Response
     {
-        // (optionnel) n’afficher que si tu es owner
-        // si l’énoncé exige que seuls les owners voient :
-        // if ($project->getOwner() !== $this->getUser()) {
-        //     throw $this->createAccessDeniedException();
-        // }
-
-        $tasks = $taskRepository->findBy(
-            ['project' => $project],
-            ['createdAt' => 'ASC']
-        );
-
-        return $this->render('task/index.html.twig', [
-            'project' => $project,
-            'tasks' => $tasks,
-        ]);
+        return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
     }
 }

@@ -5,135 +5,88 @@ namespace App\DataFixtures;
 use App\Entity\Project;
 use App\Entity\Status;
 use App\Entity\Task;
-use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-final class AppFixtures extends Fixture
+class AppFixtures extends Fixture
 {
-    public function __construct(
-        private UserPasswordHasherInterface $passwordHasher
-    ) {}
-
     public function load(ObjectManager $manager): void
     {
-        $now = new \DateTimeImmutable();
+        // =========================
+        // 1) STATUTS (obligatoires)
+        // =========================
+        $statusTodo = new Status();
+        $statusTodo->setLabel('To Do');
+        $manager->persist($statusTodo);
 
-        // -------------------------
-        // USERS (passwords hashed)
-        // -------------------------
-        $user1 = (new User())
-            ->setEmail('alice@example.com')
-            ->setFirstName('Alice')
-            ->setLastName('Martin');
+        $statusDoing = new Status();
+        $statusDoing->setLabel('Doing');
+        $manager->persist($statusDoing);
 
-        $user1->setPassword($this->passwordHasher->hashPassword($user1, 'password'));
+        $statusDone = new Status();
+        $statusDone->setLabel('Done');
+        $manager->persist($statusDone);
 
-        $user2 = (new User())
-            ->setEmail('bob@example.com')
-            ->setFirstName('Bob')
-            ->setLastName('Durand');
-
-        $user2->setPassword($this->passwordHasher->hashPassword($user2, 'password'));
-
-        $user3 = (new User())
-            ->setEmail('charlie@example.com')
-            ->setFirstName('Charlie')
-            ->setLastName('Bernard');
-
-        $user3->setPassword($this->passwordHasher->hashPassword($user3, 'password'));
-
-        $manager->persist($user1);
-        $manager->persist($user2);
-        $manager->persist($user3);
-
-        // -------------------------
-        // STATUS
-        // -------------------------
-        $todo = (new Status())->setLabel('À faire');
-        $doing = (new Status())->setLabel('En cours');
-        $done = (new Status())->setLabel('Terminé');
-
-        $manager->persist($todo);
-        $manager->persist($doing);
-        $manager->persist($done);
-
-        // -------------------------
-        // PROJECTS
-        // -------------------------
-        $project1 = (new Project())
-            ->setName('Projet Site Vitrine')
-            ->setDescription('Création du site vitrine de l’entreprise')
-            ->setCreatedAt($now)
-            ->setOwner($user1);
-
-        $project2 = (new Project())
-            ->setName('Projet Application Mobile')
-            ->setDescription('Développement d’une app mobile interne')
-            ->setCreatedAt($now)
-            ->setOwner($user2);
-
+        // =========================
+        // 2) PROJETS
+        // =========================
+        $project1 = new Project();
+        $project1->setName('Projet Site Vitrine');
+        $project1->setCreatedAt(new \DateTimeImmutable());
         $manager->persist($project1);
+
+        $project2 = new Project();
+        $project2->setName('Projet Application Mobile');
+        $project2->setCreatedAt(new \DateTimeImmutable());
         $manager->persist($project2);
 
-        // -------------------------
-        // TASKS
-        // -------------------------
-        $task1 = (new Task())
-            ->setTitle('Rédiger le cahier des charges')
-            ->setDescription('Lister les besoins et contraintes')
-            ->setCreatedAt($now)
-            ->setProject($project1)
-            ->setAssignee($user1)
-            ->setStatus($todo);
+        // =========================
+        // 3) TACHES - Projet 1
+        // =========================
+        $t1 = new Task();
+        $t1->setTitle("Gestion des droits d'accès");
+        $t1->setDescription("Un employé ne peut accéder qu'à ses projets");
+        $t1->setProject($project1);
+        $t1->setStatus($statusTodo);
+        $manager->persist($t1);
 
-        $task2 = (new Task())
-            ->setTitle('Créer la maquette Figma')
-            ->setDescription('Maquette desktop + mobile')
-            ->setCreatedAt($now)
-            ->setProject($project1)
-            ->setAssignee($user3)
-            ->setStatus($doing);
+        $t2 = new Task();
+        $t2->setTitle("Développement de la page employé");
+        $t2->setDescription("Page employé avec liste des employés + édition/modification/suppression");
+        $t2->setProject($project1);
+        $t2->setStatus($statusDoing);
+        $manager->persist($t2);
 
-        $task3 = (new Task())
-            ->setTitle('Intégrer la page d’accueil')
-            ->setDescription(null)
-            ->setCreatedAt($now)
-            ->setProject($project1)
-            ->setAssignee(null)
-            ->setStatus($todo);
+        $t3 = new Task();
+        $t3->setTitle("Développement de la structure globale");
+        $t3->setDescription("Intégrer les maquettes");
+        $t3->setProject($project1);
+        $t3->setStatus($statusDone);
+        $manager->persist($t3);
 
-        $task4 = (new Task())
-            ->setTitle('Définir l’architecture technique')
-            ->setDescription('API + base de données')
-            ->setCreatedAt($now)
-            ->setProject($project2)
-            ->setAssignee($user2)
-            ->setStatus($doing);
+        $t4 = new Task();
+        $t4->setTitle("Développement de la page projet");
+        $t4->setDescription("Page projet avec colonnes To Do / Doing / Done");
+        $t4->setProject($project1);
+        $t4->setStatus($statusDone);
+        $manager->persist($t4);
 
-        $task5 = (new Task())
-            ->setTitle('Mettre en place CI/CD')
-            ->setDescription('Pipeline GitHub Actions')
-            ->setCreatedAt($now)
-            ->setProject($project2)
-            ->setAssignee($user1)
-            ->setStatus($todo);
+        // =========================
+        // 4) TACHES - Projet 2
+        // =========================
+        $t5 = new Task();
+        $t5->setTitle("Créer la page d'accueil projets");
+        $t5->setDescription("Afficher la liste des projets via Doctrine");
+        $t5->setProject($project2);
+        $t5->setStatus($statusTodo);
+        $manager->persist($t5);
 
-        $task6 = (new Task())
-            ->setTitle('Livrer la V1')
-            ->setDescription('Démo + doc')
-            ->setCreatedAt($now)
-            ->setProject($project2)
-            ->setAssignee($user2)
-            ->setStatus($done);
-
-        $manager->persist($task1);
-        $manager->persist($task2);
-        $manager->persist($task3);
-        $manager->persist($task4);
-        $manager->persist($task5);
-        $manager->persist($task6);
+        $t6 = new Task();
+        $t6->setTitle("Créer le CRUD tâches");
+        $t6->setDescription("Créer / modifier / supprimer une tâche via FormTypes");
+        $t6->setProject($project2);
+        $t6->setStatus($statusDoing);
+        $manager->persist($t6);
 
         $manager->flush();
     }
