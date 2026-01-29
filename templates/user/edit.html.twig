@@ -1,20 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ user.firstName }} {{ user.lastName }} - TaskLinker{% endblock %}
+{% block title %}{{ user.fullName }} - TaskLinker{% endblock %}
 
 {% block body %}
 <header>
     <div id="current-user"></div>
     <div id="title-page">
-        <h1>{{ user.firstName }} {{ user.lastName }}</h1>
+        <h1>{{ user.fullName }}</h1>
     </div>
 </header>
 
 <div id="content">
     {{ form_start(form) }}
-
-        {# IMPORTANT : on force les classes/structure du prototype #}
-
         <div>
             {{ form_label(form.lastName) }}
             {{ form_widget(form.lastName) }}
@@ -35,20 +32,18 @@
 
         <div class="form-flex">
             <div>
-                {{ form_label(form.entryDate) }}
-                {{ form_widget(form.entryDate) }}
-                {{ form_errors(form.entryDate) }}
+                {{ form_label(form.hiredAt) }}
+                {{ form_widget(form.hiredAt) }}
+                {{ form_errors(form.hiredAt) }}
             </div>
-
             <div>
-                {{ form_label(form.contractType) }}
-                {{ form_widget(form.contractType) }}
-                {{ form_errors(form.contractType) }}
+                {{ form_label(form.contractStatus) }}
+                {{ form_widget(form.contractStatus) }}
+                {{ form_errors(form.contractStatus) }}
             </div>
         </div>
 
         <button class="button button-submit">Enregistrer</button>
-
     {{ form_end(form) }}
 </div>
 {% endblock %}

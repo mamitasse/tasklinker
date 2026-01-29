@@ -19,37 +19,40 @@
                 <th>Actions</th>
             </tr>
         </thead>
-
         <tbody>
-            {% for user in users %}
-                <tr>
-                    <td>
-                        <div class="employee-infos">
-                            <div class="employee-avatar">
-                                {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
-                            </div>
-
-                            <div class="employee-coords">
-                                <strong>{{ user.firstName }} {{ user.lastName }}</strong>
-                                <span>{{ user.email }}</span>
-                            </div>
+        {% for user in users %}
+            <tr>
+                <td>
+                    <div class="employee-infos">
+                        <div class="employee-avatar">
+                            {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
                         </div>
-                    </td>
+                        <div class="employee-coords">
+                            <strong>
+                                <a href="{{ path('app_team_show', { id: user.id }) }}">
+                                    {{ user.fullName }}
+                                </a>
+                            </strong>
+                            <span>{{ user.email }}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ user.contractStatus }}</td>
+                <td>
+                    <a class="button button-edit-team" href="{{ path('app_team_edit', { id: user.id }) }}">
+                        Éditer
+                    </a>
 
-                    <td>{{ user.contractType ?? '' }}</td>
-
-                    <td>
-                        <a class="button button-edit-team" href="{{ path('app_user_edit', { id: user.id }) }}">
-                            Éditer
-                        </a>
-
-                        {# Prototype affiche "Supprimer" mais l'énoncé ne le demande pas #}
-                        <a class="delete-team" href="#">
-                            Supprimer
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
+                    <form method="post"
+                          action="{{ path('app_team_delete', { id: user.id }) }}"
+                          style="display:inline"
+                          onsubmit="return confirm('Supprimer cet employé ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                        <button type="submit" class="delete-team">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>

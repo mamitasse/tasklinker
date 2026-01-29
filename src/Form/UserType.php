@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -16,7 +15,7 @@ final class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            // Prototype: Nom, Prenom, Email
+            // Nom / Prénom / Email
             ->add('lastName', TextType::class, [
                 'label' => 'Nom',
             ])
@@ -27,22 +26,13 @@ final class UserType extends AbstractType
                 'label' => 'Email',
             ])
 
-            // Prototype: Date d'entrée + Statut
-            ->add('entryDate', DateType::class, [
+            // Date d'entrée / Statut
+            ->add('hiredAt', DateType::class, [
                 'label' => "Date d'entrée",
                 'widget' => 'single_text',
-                'required' => false,
             ])
-            ->add('contractType', ChoiceType::class, [
+            ->add('contractStatus', TextType::class, [
                 'label' => 'Statut',
-                'required' => false,
-                'choices' => [
-                    'CDI' => 'CDI',
-                    'CDD' => 'CDD',
-                    'Freelance' => 'Freelance',
-                ],
-                // pour avoir un rendu proche du prototype
-                'placeholder' => false,
             ])
         ;
     }

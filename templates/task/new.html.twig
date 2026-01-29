@@ -13,21 +13,40 @@
 <div id="content">
     {{ form_start(form) }}
 
-        {{ form_row(form.title) }}
-        {{ form_row(form.description) }}
+        <div>
+            {{ form_label(form.title, 'Titre de la tâche') }}
+            {{ form_widget(form.title) }}
+            {{ form_errors(form.title) }}
+        </div>
+
+        <div>
+            {{ form_label(form.description, 'Description') }}
+            {{ form_widget(form.description) }}
+            {{ form_errors(form.description) }}
+        </div>
 
         <div class="flex-form">
             <div>
-                {{ form_row(form.deadline) }}
+                {{ form_label(form.deadline, 'Date') }}
+                {{ form_widget(form.deadline) }}
+                {{ form_errors(form.deadline) }}
             </div>
+
             <div>
-                {{ form_row(form.status) }}
+                {{ form_label(form.status, 'Statut') }}
+                {{ form_widget(form.status) }}
+                {{ form_errors(form.status) }}
             </div>
         </div>
 
-        {{ form_row(form.assignee) }}
+        <div>
+            {{ form_label(form.assignee, 'Membre') }}
+            {{ form_widget(form.assignee) }}
+            {{ form_errors(form.assignee) }}
+        </div>
 
         <br>
+
         <button class="button button-submit">Ajouter</button>
 
     {{ form_end(form) }}

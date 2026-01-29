@@ -6,7 +6,6 @@ use App\Entity\Project;
 use App\Entity\Status;
 use App\Entity\Task;
 use App\Entity\User;
-use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -15,58 +14,54 @@ final class AppFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         // =========================
-        // 1) USERS (Équipe - prototype)
+        // 1) USERS
         // =========================
         $natalie = (new User())
             ->setFirstName('Natalie')
             ->setLastName('Dillon')
             ->setEmail('natalie@driblet.com')
-            ->setEntryDate(new DateTimeImmutable('2019-06-14'))
-            ->setContractType('CDI');
+            ->setContractStatus('CDI')
+            ->setHiredAt(new \DateTimeImmutable('2019-06-14'));
         $manager->persist($natalie);
 
         $demi = (new User())
             ->setFirstName('Demi')
             ->setLastName('Baker')
             ->setEmail('demi@driblet.com')
-            ->setEntryDate(new DateTimeImmutable('2020-03-02'))
-            ->setContractType('CDD');
+            ->setContractStatus('CDD')
+            ->setHiredAt(new \DateTimeImmutable('2021-02-01'));
         $manager->persist($demi);
 
         $marie = (new User())
             ->setFirstName('Marie')
             ->setLastName('Dupont')
             ->setEmail('marie@driblet.com')
-            ->setEntryDate(new DateTimeImmutable('2021-01-11'))
-            ->setContractType('Freelance');
+            ->setContractStatus('Freelance')
+            ->setHiredAt(new \DateTimeImmutable('2020-09-10'));
         $manager->persist($marie);
 
         // =========================
-        // 2) STATUTS (obligatoires)
+        // 2) STATUTS
         // =========================
         $statusTodo = (new Status())->setLabel('To Do');
-        $manager->persist($statusTodo);
-
         $statusDoing = (new Status())->setLabel('Doing');
-        $manager->persist($statusDoing);
-
         $statusDone = (new Status())->setLabel('Done');
+
+        $manager->persist($statusTodo);
+        $manager->persist($statusDoing);
         $manager->persist($statusDone);
 
         // =========================
         // 3) PROJETS
         // =========================
         $project1 = (new Project())->setName('Projet Site Vitrine');
-        $manager->persist($project1);
-
         $project2 = (new Project())->setName('Projet Application Mobile');
+
+        $manager->persist($project1);
         $manager->persist($project2);
 
-        // Si ta relation ManyToMany Project<->User existe (Project::addUser)
-        if (method_exists($project1, 'addUser')) {
-            $project1->addUser($natalie)->addUser($demi);
-            $project2->addUser($demi)->addUser($marie);
-        }
+        $project1->addUser($natalie)->addUser($demi);
+        $project2->addUser($demi)->addUser($marie);
 
         // =========================
         // 4) TACHES - Projet 1
@@ -76,7 +71,7 @@ final class AppFixtures extends Fixture
             ->setDescription("Un employé ne peut accéder qu'à ses projets")
             ->setProject($project1)
             ->setStatus($statusTodo)
-            ->setDeadline(new DateTimeImmutable('2026-02-05'));
+            ->setDeadline(new \DateTimeImmutable('2026-02-05'));
         $manager->persist($t1);
 
         $t2 = (new Task())
@@ -84,7 +79,7 @@ final class AppFixtures extends Fixture
             ->setDescription("Page employé avec liste des employés + édition/modification/suppression")
             ->setProject($project1)
             ->setStatus($statusDoing)
-            ->setDeadline(new DateTimeImmutable('2026-02-10'))
+            ->setDeadline(new \DateTimeImmutable('2026-02-10'))
             ->setAssignee($demi);
         $manager->persist($t2);
 
@@ -93,7 +88,7 @@ final class AppFixtures extends Fixture
             ->setDescription("Intégrer les maquettes")
             ->setProject($project1)
             ->setStatus($statusDone)
-            ->setDeadline(new DateTimeImmutable('2026-01-25'))
+            ->setDeadline(new \DateTimeImmutable('2026-01-25'))
             ->setAssignee($demi);
         $manager->persist($t3);
 

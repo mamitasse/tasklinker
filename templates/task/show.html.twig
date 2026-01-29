@@ -5,7 +5,6 @@
 {% block body %}
 <header>
     <div id="current-user"></div>
-
     <div id="title-page">
         <h1>{{ task.title }}</h1>
     </div>
@@ -15,52 +14,55 @@
 
     {{ form_start(form) }}
 
-        {{ form_row(form.title, {
-            label: 'Titre de la tâche'
-        }) }}
+        {# Titre #}
+        <div>
+            {{ form_label(form.title, 'Titre de la tâche') }}
+            {{ form_widget(form.title) }}
+            {{ form_errors(form.title) }}
+        </div>
 
-        {{ form_row(form.description, {
-            label: 'Description'
-        }) }}
+        {# Description #}
+        <div>
+            {{ form_label(form.description, 'Description') }}
+            {{ form_widget(form.description) }}
+            {{ form_errors(form.description) }}
+        </div>
 
+        {# Date + statut #}
         <div class="flex-form">
             <div>
-                {{ form_row(form.deadline, {
-                    label: 'Date'
-                }) }}
+                {{ form_label(form.deadline, 'Date') }}
+                {{ form_widget(form.deadline) }}
+                {{ form_errors(form.deadline) }}
             </div>
 
             <div>
-                {{ form_row(form.status, {
-                    label: 'Statut'
-                }) }}
+                {{ form_label(form.status, 'Statut') }}
+                {{ form_widget(form.status) }}
+                {{ form_errors(form.status) }}
             </div>
         </div>
 
-        {{ form_row(form.assignee, {
-            label: 'Membre'
-        }) }}
+        {# Membre #}
+        <div>
+            {{ form_label(form.assignee, 'Membre') }}
+            {{ form_widget(form.assignee) }}
+            {{ form_errors(form.assignee) }}
+        </div>
 
         <br>
 
-        <button class="button button-submit">
-            Modifier
-        </button>
+        <button class="button button-submit">Modifier</button>
 
     {{ form_end(form) }}
 
+    {# Lien supprimer (prototype) -> en vrai, on déclenche un POST sécurisé #}
     <form method="post"
-          action="{{ path('app_project_tasks_delete', {
-              projectId: project.id,
-              id: task.id
-          }) }}"
-          onsubmit="return confirm('Supprimer cette tâche ?');"
-          style="margin-top: 1rem;">
-
-        <input type="hidden" name="_token"
-               value="{{ csrf_token('delete_task_' ~ task.id) }}">
-
-        <button class="delete-task" type="submit">
+          action="{{ path('app_project_tasks_delete', { projectId: project.id, id: task.id }) }}"
+          onsubmit="return confirm('Confirmer la suppression de cette tâche ?');"
+          style="margin-top: 18px;">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_task_' ~ task.id) }}">
+        <button type="submit" class="delete-task" style="background:none;border:none;padding:0;cursor:pointer;">
             Supprimer la tâche
         </button>
     </form>
