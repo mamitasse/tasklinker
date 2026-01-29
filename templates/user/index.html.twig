@@ -1,31 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Équipe | TaskLinker{% endblock %}
+{% block title %}Liste des employés - TaskLinker{% endblock %}
 
 {% block body %}
 <header>
+    <div id="current-user"></div>
     <div id="title-page">
-        <div class="flex-header">
-            <h1>Équipe</h1>
-        </div>
+        <h1>Équipe</h1>
     </div>
 </header>
 
 <div id="content">
-    <div class="team-list">
-        {% for user in users %}
-            <a class="team-card" href="{{ path('app_user_show', { id: user.id }) }}">
-                <div class="avatar">
-                    {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
-                </div>
-                <div class="team-info">
-                    <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-                    <p>{{ user.email }}</p>
-                </div>
-            </a>
-        {% else %}
-            <p>Aucun employé.</p>
-        {% endfor %}
-    </div>
+    <table id="team-container">
+        <thead>
+            <tr>
+                <th>Prénom, Nom</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="employee-infos">
+                            <div class="employee-avatar">
+                                {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                            </div>
+
+                            <div class="employee-coords">
+                                <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                                <span>{{ user.email }}</span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>{{ user.contractType ?? '' }}</td>
+
+                    <td>
+                        <a class="button button-edit-team" href="{{ path('app_user_edit', { id: user.id }) }}">
+                            Éditer
+                        </a>
+
+                        {# Prototype affiche "Supprimer" mais l'énoncé ne le demande pas #}
+                        <a class="delete-team" href="#">
+                            Supprimer
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

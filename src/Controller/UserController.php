@@ -22,14 +22,6 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
-    public function show(User $user): Response
-    {
-        return $this->render('user/show.html.twig', [
-            'user' => $user,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
     public function edit(User $user, Request $request, EntityManagerInterface $em): Response
     {
@@ -39,7 +31,7 @@ final class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            return $this->redirectToRoute('app_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('user/edit.html.twig', [

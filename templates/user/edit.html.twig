@@ -1,24 +1,54 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier {{ user.fullName }} | Équipe{% endblock %}
+{% block title %}{{ user.firstName }} {{ user.lastName }} - TaskLinker{% endblock %}
 
 {% block body %}
 <header>
+    <div id="current-user"></div>
     <div id="title-page">
-        <div class="flex-header">
-            <h1>Modifier un employé</h1>
-        </div>
+        <h1>{{ user.firstName }} {{ user.lastName }}</h1>
     </div>
 </header>
 
 <div id="content">
     {{ form_start(form) }}
-        {{ form_row(form.firstName) }}
-        {{ form_row(form.lastName) }}
-        {{ form_row(form.email) }}
 
-        <button class="button" type="submit">Enregistrer</button>
-        <a class="button" href="{{ path('app_user_show', { id: user.id }) }}">Annuler</a>
+        {# IMPORTANT : on force les classes/structure du prototype #}
+
+        <div>
+            {{ form_label(form.lastName) }}
+            {{ form_widget(form.lastName) }}
+            {{ form_errors(form.lastName) }}
+        </div>
+
+        <div>
+            {{ form_label(form.firstName) }}
+            {{ form_widget(form.firstName) }}
+            {{ form_errors(form.firstName) }}
+        </div>
+
+        <div>
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        <div class="form-flex">
+            <div>
+                {{ form_label(form.entryDate) }}
+                {{ form_widget(form.entryDate) }}
+                {{ form_errors(form.entryDate) }}
+            </div>
+
+            <div>
+                {{ form_label(form.contractType) }}
+                {{ form_widget(form.contractType) }}
+                {{ form_errors(form.contractType) }}
+            </div>
+        </div>
+
+        <button class="button button-submit">Enregistrer</button>
+
     {{ form_end(form) }}
 </div>
 {% endblock %}
