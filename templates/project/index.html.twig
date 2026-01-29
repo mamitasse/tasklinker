@@ -3,53 +3,68 @@
 {% block title %}Liste des projets - TaskLinker{% endblock %}
 
 {% block body %}
-    <header>
-        <div id="current-user"></div>
-        <div id="title-page">
-            <h1>Projets</h1>
-        </div>
-    </header>
+<header>
+    <div id="current-user"></div>
 
-    <div id="content">
-        <div id="projects-container">
+    <div id="title-page">
+        <h1>Projets</h1>
+    </div>
+</header>
 
-            {# Cartes projets — structure STRICTEMENT identique au prototype #}
-            {% for project in projects %}
-                <article class="card-project">
-                    <a href="{{ path('app_project_show', { id: project.id }) }}">
-                        <h2>{{ project.name }}</h2>
+<div id="content">
+    <div id="projects-container">
+
+        {# ===============================
+           CARTES PROJETS (prototype)
+           =============================== #}
+        {% for project in projects %}
+            <article class="card-project">
+
+                {# Nom du projet (clic → fiche projet) #}
+                <a href="{{ path('app_project_show', { id: project.id }) }}">
+                    <h2>{{ project.name }}</h2>
+                </a>
+
+                {# Icônes édition / archivage #}
+                <div class="card-project-icons">
+
+                    {# Modifier le projet #}
+                    <a href="{{ path('app_project_edit', { id: project.id }) }}"
+                       title="Modifier">
+                        <i class="fa-solid fa-pen"></i>
                     </a>
 
-                    <div class="card-project-icons">
-                        <a href="{{ path('app_project_edit', { id: project.id }) }}">
-                            <i class="fa-solid fa-pen"></i>
-                        </a>
-
-                        {# Icône poubelle VISUELLE (identique prototype) #}
-                        <a href="#"
-                           onclick="event.preventDefault(); document.getElementById('delete-form-{{ project.id }}').submit();">
-                            <i class="fa-solid fa-trash"></i>
-                        </a>
-                    </div>
-                </article>
-
-                {# Formulaire caché pour POST (Symfony) — n'affecte PAS le layout #}
-                <form id="archive-form-{{ project.id }}"
-                      method="post"
-                      action="{{ path('app_project_archive', { id: project.id }) }}"
-                      style="display:none;">
-                    <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ project.id) }}">
-                </form>
-            {% endfor %}
-
-            {# Carte "Ajouter un projet" — IDENTIQUE au prototype #}
-            <article class="card-project">
-                <a href="{{ path('app_project_new') }}">
-                    <i class="fa-solid fa-circle-plus add-project-icon"></i>
-                    <h2>Ajouter un projet</h2>
-                </a>
+                    {# Archiver le projet (avec confirmation JS) #}
+                    <a href="#"
+                       class="js-confirm-archive"
+                       data-form-id="archive-form-{{ project.id }}"
+                       title="Archiver">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </div>
             </article>
 
-        </div>
+            {# Formulaire caché pour l’archivage (POST Symfony + CSRF) #}
+            <form id="archive-form-{{ project.id }}"
+                  method="post"
+                  action="{{ path('app_project_archive', { id: project.id }) }}"
+                  style="display:none;">
+                <input type="hidden"
+                       name="_token"
+                       value="{{ csrf_token('archive' ~ project.id) }}">
+            </form>
+        {% endfor %}
+
+        {# ===============================
+           CARTE "AJOUTER UN PROJET"
+           =============================== #}
+        <article class="card-project">
+            <a href="{{ path('app_project_new') }}">
+                <i class="fa-solid fa-circle-plus add-project-icon"></i>
+                <h2>Ajouter un projet</h2>
+            </a>
+        </article>
+
     </div>
+</div>
 {% endblock %}

@@ -3,25 +3,42 @@
 {% block title %}{{ project.name }} - TaskLinker{% endblock %}
 
 {% block body %}
+
 <header>
     <div id="current-user"></div>
+
+    {# ===== TITRE VERT (COMME LE PROTOTYPE) ===== #}
     <div id="title-page">
         <h1>{{ project.name }}</h1>
     </div>
 </header>
 
 <div id="content">
-    {{ form_start(form, { attr: { name: 'projet' } }) }}
+
+    {{ form_start(form) }}
 
         <div>
             {{ form_label(form.name, 'Titre du projet', { label_attr: { class: 'required' } }) }}
-            {{ form_widget(form.name, { attr: { id: 'projet_nom' } }) }}
-            {{ form_errors(form.name) }}
+            {{ form_widget(form.name) }}
+        </div>
+
+        <div>
+            {{ form_label(form.users, 'Inviter des membres') }}
+            {{ form_widget(form.users, {
+                attr: {
+                    class: 'js-select2'
+                }
+            }) }}
         </div>
 
         <br>
-        <button class="button button-submit">Modifier</button>
+
+        <button class="button button-submit">
+            Modifier
+        </button>
 
     {{ form_end(form) }}
+
 </div>
+
 {% endblock %}
