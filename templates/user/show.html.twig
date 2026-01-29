@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.fullName }} | Équipe{% endblock %}
+
+{% block body %}
+<header>
+    <div id="title-page">
+        <div class="flex-header">
+            <h1>{{ user.fullName }}</h1>
+
+            <a class="button" href="{{ path('app_user_edit', { id: user.id }) }}">Modifier</a>
+        </div>
+    </div>
+</header>
+
+<div id="content">
+    <div class="team-detail">
+        <p><strong>Email :</strong> {{ user.email }}</p>
+
+        <h2>Projets</h2>
+        <ul>
+            {% for project in user.projects %}
+                <li>
+                    <a href="{{ path('app_project_show', { id: project.id }) }}">
+                        {{ project.name }}
+                    </a>
+                </li>
+            {% else %}
+                <li>Aucun projet.</li>
+            {% endfor %}
+        </ul>
+
+        <a class="button" href="{{ path('app_user_index') }}">← Retour équipe</a>
+    </div>
+</div>
+{% endblock %}

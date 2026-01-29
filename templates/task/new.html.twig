@@ -1,11 +1,35 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Task{% endblock %}
+{% block title %}Créer une tâche - TaskLinker{% endblock %}
 
 {% block body %}
-    <h1>Create new Task</h1>
+<header>
+    <div id="current-user"></div>
+    <div id="title-page">
+        <h1>Créer une tâche</h1>
+    </div>
+</header>
 
-    {{ include('task/_form.html.twig') }}
+<div id="content">
+    {{ form_start(form) }}
 
-    <a href="{{ path('app_task_index') }}">back to list</a>
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+
+        <div class="flex-form">
+            <div>
+                {{ form_row(form.deadline) }}
+            </div>
+            <div>
+                {{ form_row(form.status) }}
+            </div>
+        </div>
+
+        {{ form_row(form.assignee) }}
+
+        <br>
+        <button class="button button-submit">Ajouter</button>
+
+    {{ form_end(form) }}
+</div>
 {% endblock %}

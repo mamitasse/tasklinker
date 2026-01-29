@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Équipe | TaskLinker{% endblock %}
+
+{% block body %}
+<header>
+    <div id="title-page">
+        <div class="flex-header">
+            <h1>Équipe</h1>
+        </div>
+    </div>
+</header>
+
+<div id="content">
+    <div class="team-list">
+        {% for user in users %}
+            <a class="team-card" href="{{ path('app_user_show', { id: user.id }) }}">
+                <div class="avatar">
+                    {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                </div>
+                <div class="team-info">
+                    <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+                    <p>{{ user.email }}</p>
+                </div>
+            </a>
+        {% else %}
+            <p>Aucun employé.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

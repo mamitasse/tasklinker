@@ -1,11 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Project{% endblock %}
+{% block title %}Nouveau projet - TaskLinker{% endblock %}
 
 {% block body %}
-    <h1>Create new Project</h1>
+<header>
+    <div id="current-user"></div>
 
-    {{ include('project/_form.html.twig') }}
+    <div id="title-page">
+        <h1>Nouveau projet</h1>
+    </div>
+</header>
 
-    <a href="{{ path('app_project_index') }}">back to list</a>
+<div id="content">
+    {{ include('project/_form.html.twig', { button_label: 'Continuer' }) }}
+</div>
 {% endblock %}

@@ -23,6 +23,7 @@ class Task
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    // ✅ Date limite (optionnelle)
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $deadline = null;
 
@@ -110,9 +111,7 @@ class Task
         return $this->project;
     }
 
-    /**
-     * Project est NON NULLABLE
-     */
+    // Project est NON NULLABLE
     public function setProject(Project $project): static
     {
         $this->project = $project;
@@ -124,9 +123,7 @@ class Task
         return $this->assignee;
     }
 
-    /**
-     * Assignee est nullable
-     */
+    // Assignee est nullable
     public function setAssignee(?User $assignee): static
     {
         $this->assignee = $assignee;
@@ -138,9 +135,7 @@ class Task
         return $this->status;
     }
 
-    /**
-     * Status est NON NULLABLE
-     */
+    // Status est NON NULLABLE
     public function setStatus(Status $status): static
     {
         $this->status = $status;

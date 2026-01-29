@@ -1,4 +1,12 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+    {{ form_row(form.name) }}
+
+    {{ form_row(form.users) }}
+
+    <br>
+    <button class="button button-submit">
+        {{ button_label|default('Continuer') }}
+    </button>
+
 {{ form_end(form) }}

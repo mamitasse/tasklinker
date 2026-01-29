@@ -26,11 +26,14 @@
         {# =========================
            Colonne TO DO
            ========================= #}
-        <div class="task-column">
+        <div class="task-column kanban-column" data-status="todo">
             <h2>To Do</h2>
             <div class="tasks-list">
                 {% for task in todo %}
-                    <a class="task" href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
+                    <a class="task task-card"
+                       draggable="true"
+                       data-id="{{ task.id }}"
+                       href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
                         <h3>{{ task.title }}</h3>
 
                         {% if task.description %}
@@ -62,11 +65,14 @@
         {# =========================
            Colonne DOING
            ========================= #}
-        <div class="task-column">
+        <div class="task-column kanban-column" data-status="doing">
             <h2>Doing</h2>
             <div class="tasks-list">
                 {% for task in doing %}
-                    <a class="task" href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
+                    <a class="task task-card"
+                       draggable="true"
+                       data-id="{{ task.id }}"
+                       href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
                         <h3>{{ task.title }}</h3>
 
                         {% if task.description %}
@@ -98,11 +104,14 @@
         {# =========================
            Colonne DONE
            ========================= #}
-        <div class="task-column">
+        <div class="task-column kanban-column" data-status="done">
             <h2>Done</h2>
             <div class="tasks-list">
                 {% for task in done %}
-                    <a class="task" href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
+                    <a class="task task-card"
+                       draggable="true"
+                       data-id="{{ task.id }}"
+                       href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
                         <h3>{{ task.title }}</h3>
 
                         {% if task.description %}
@@ -133,4 +142,83 @@
 
     </div>
 </div>
+
+{# ================= DRAG & DROP (sans casser ton design) ================= #}
+<script>
+(() => {
+    let isDragging = false;
+
+    // 1) rendre toutes les cartes draggable
+    document.querySelectorAll('.task-card').forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+            isDragging = true;
+            card.classList.add('is-dragging');
+            e.dataTransfer.setData('text/plain', card.dataset.id);
+        });
+
+        card.addEventListener('dragend', () => {
+            isDragging = false;
+            card.classList.remove('is-dragging');
+        });
+
+        // Empêche l'ouverture du lien si on est en train de drag
+        card.addEventListener('click', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // 2) colonnes acceptent le drop
+    document.querySelectorAll('.kanban-column .tasks-list').forEach(list => {
+        list.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        list.addEventListener('drop', async (e) => {
+            e.preventDefault();
+
+            const taskId = e.dataTransfer.getData('text/plain');
+            const column = list.closest('.kanban-column');
+            const newStatus = column.dataset.status;
+
+            const card = document.querySelector(`.task-card[data-id="${taskId}"]`);
+            if (!card) return;
+
+            // Déplace visuellement (UX instant)
+            // Attention : on le met avant le bouton "+ Ajouter une tâche"
+            const addBtn = list.querySelector('.task-add');
+            if (addBtn) {
+                list.insertBefore(card, addBtn);
+            } else {
+                list.appendChild(card);
+            }
+
+            // 3) sauvegarde en base (route Symfony)
+            // IMPORTANT : ton TaskController est préfixé par /project
+            // Donc l'URL doit être /project/tasks/{id}/status
+            try {
+                const res = await fetch(`/project/tasks/${taskId}/status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (!res.ok) {
+                    // si erreur serveur, on informe
+                    console.error('Erreur update status', await res.text());
+                    alert("Erreur : impossible de mettre à jour le statut.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur réseau : impossible de mettre à jour le statut.");
+            }
+        });
+    });
+})();
+</script>
+
 {% endblock %}

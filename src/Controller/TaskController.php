@@ -5,9 +5,10 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Form\TaskType;
-use App\Repository\TaskRepository;
+use App\Repository\StatusRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -15,83 +16,116 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/project')]
 final class TaskController extends AbstractController
 {
-    // ✅ Liste des tâches d’un projet
-    #[Route('/{id}/tasks', name: 'app_project_tasks', methods: ['GET'])]
-    public function index(Project $project, TaskRepository $taskRepository): Response
-    {
-        return $this->render('task/index.html.twig', [
-            'project' => $project,
-            'tasks' => $taskRepository->findBy(['project' => $project]),
-        ]);
-    }
-
-    // ✅ Créer une tâche dans un projet
     #[Route('/{id}/tasks/new', name: 'app_project_tasks_new', methods: ['GET', 'POST'])]
-    public function new(Project $project, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Project $project, Request $request, EntityManagerInterface $em): Response
     {
-        $task = new Task();
+        if ($project->isArchived()) {
+            throw $this->createNotFoundException();
+        }
 
-        // ✅ important : on fixe le projet automatiquement
+        $task = new Task();
         $task->setProject($project);
 
         $form = $this->createForm(TaskType::class, $task, [
-            // optionnel : tu peux désactiver le champ project côté formulaire ensuite
+            'project' => $project,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($task);
-            $entityManager->flush();
+            $em->persist($task);
+            $em->flush();
 
-            return $this->redirectToRoute('app_project_tasks', ['id' => $project->getId()]);
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('task/new.html.twig', [
             'project' => $project,
-            'task' => $task,
             'form' => $form,
         ]);
     }
 
-    // ✅ Voir une tâche (dans le contexte d’un projet)
     #[Route('/{projectId}/tasks/{id}', name: 'app_project_tasks_show', methods: ['GET'])]
     public function show(int $projectId, Task $task): Response
     {
+        if ($task->getProject()->getId() !== $projectId) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($task->getProject()->isArchived()) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('task/show.html.twig', [
-            'projectId' => $projectId,
+            'project' => $task->getProject(),
             'task' => $task,
         ]);
     }
 
-    // ✅ Éditer une tâche
     #[Route('/{projectId}/tasks/{id}/edit', name: 'app_project_tasks_edit', methods: ['GET', 'POST'])]
-    public function edit(int $projectId, Request $request, Task $task, EntityManagerInterface $entityManager): Response
+    public function edit(int $projectId, Request $request, Task $task, EntityManagerInterface $em): Response
     {
-        $form = $this->createForm(TaskType::class, $task);
+        if ($task->getProject()->getId() !== $projectId) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($task->getProject()->isArchived()) {
+            throw $this->createNotFoundException();
+        }
+
+        $form = $this->createForm(TaskType::class, $task, [
+            'project' => $task->getProject(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $em->flush();
 
-            return $this->redirectToRoute('app_project_tasks', ['id' => $projectId]);
+            return $this->redirectToRoute('app_project_show', ['id' => $projectId], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('task/edit.html.twig', [
-            'projectId' => $projectId,
+            'project' => $task->getProject(),
             'task' => $task,
             'form' => $form,
         ]);
     }
 
-    // ✅ Supprimer une tâche
-    #[Route('/{projectId}/tasks/{id}', name: 'app_project_tasks_delete', methods: ['POST'])]
-    public function delete(int $projectId, Request $request, Task $task, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$task->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($task);
-            $entityManager->flush();
-        }
+    #[Route('/tasks/{id}/status', name: 'app_task_update_status', methods: ['POST'])]
+public function updateStatus(
+    Task $task,
+    Request $request,
+    StatusRepository $statusRepository,
+    EntityManagerInterface $em
+): JsonResponse {
+    $data = json_decode($request->getContent(), true);
 
-        return $this->redirectToRoute('app_project_tasks', ['id' => $projectId]);
+    if (!is_array($data) || empty($data['status'])) {
+        return $this->json(['error' => 'Status manquant'], 400);
     }
+
+    // mapping FRONT → status_id en base
+    $map = [
+        'todo' => 1,
+        'doing' => 2,
+        'done' => 3,
+    ];
+
+    $wanted = $data['status'];
+
+    if (!isset($map[$wanted])) {
+        return $this->json(['error' => 'Status invalide'], 400);
+    }
+
+    $statusEntity = $statusRepository->find($map[$wanted]);
+
+    if (!$statusEntity) {
+        return $this->json(['error' => 'Status introuvable'], 500);
+    }
+
+    $task->setStatus($statusEntity);
+    $em->flush();
+
+    return $this->json(['success' => true]);
+}
+
 }

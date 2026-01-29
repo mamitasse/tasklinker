@@ -1,34 +1,69 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Task{% endblock %}
+{% block title %}{{ task.title }} - TaskLinker{% endblock %}
 
 {% block body %}
-    <h1>Task</h1>
+<header>
+    <div id="current-user"></div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ task.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ task.title }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ task.description }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ task.createdAt ? task.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="title-page">
+        <h1>{{ task.title }}</h1>
+    </div>
+</header>
 
-    <a href="{{ path('app_project_tasks', {'id': projectId}) }}">back to list</a>
+<div id="content">
 
-    <a href="{{ path('app_project_tasks_edit', {'projectId': projectId, 'id': task.id}) }}">edit</a>
+    {{ form_start(form) }}
 
-    {{ include('task/_delete_form.html.twig', { projectId: projectId }) }}
+        {{ form_row(form.title, {
+            label: 'Titre de la tâche'
+        }) }}
+
+        {{ form_row(form.description, {
+            label: 'Description'
+        }) }}
+
+        <div class="flex-form">
+            <div>
+                {{ form_row(form.deadline, {
+                    label: 'Date'
+                }) }}
+            </div>
+
+            <div>
+                {{ form_row(form.status, {
+                    label: 'Statut'
+                }) }}
+            </div>
+        </div>
+
+        {{ form_row(form.assignee, {
+            label: 'Membre'
+        }) }}
+
+        <br>
+
+        <button class="button button-submit">
+            Modifier
+        </button>
+
+    {{ form_end(form) }}
+
+    <form method="post"
+          action="{{ path('app_project_tasks_delete', {
+              projectId: project.id,
+              id: task.id
+          }) }}"
+          onsubmit="return confirm('Supprimer cette tâche ?');"
+          style="margin-top: 1rem;">
+
+        <input type="hidden" name="_token"
+               value="{{ csrf_token('delete_task_' ~ task.id) }}">
+
+        <button class="delete-task" type="submit">
+            Supprimer la tâche
+        </button>
+    </form>
+
+</div>
 {% endblock %}

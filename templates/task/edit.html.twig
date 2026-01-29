@@ -1,13 +1,43 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Task{% endblock %}
+{% block title %}Modifier une tâche - TaskLinker{% endblock %}
 
 {% block body %}
-    <h1>Edit Task</h1>
+<header>
+    <div id="current-user"></div>
+    <div id="title-page">
+        <h1>{{ task.title }}</h1>
+    </div>
+</header>
 
-    {{ include('task/_form.html.twig', {'button_label': 'Update'}) }}
+<div id="content">
+    {{ form_start(form) }}
 
-    <a href="{{ path('app_task_index') }}">back to list</a>
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
 
-    {{ include('task/_delete_form.html.twig') }}
+        <div class="flex-form">
+            <div>
+                {{ form_row(form.deadline) }}
+            </div>
+            <div>
+                {{ form_row(form.status) }}
+            </div>
+        </div>
+
+        {{ form_row(form.assignee) }}
+
+        <br>
+        <button class="button button-submit">Modifier</button>
+
+        <form method="post"
+              action="{{ path('app_project_tasks_delete', { projectId: project.id, id: task.id }) }}"
+              onsubmit="return confirm('Supprimer cette tâche ?');"
+              style="display:inline;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_task_' ~ task.id) }}">
+            <button class="delete-task" type="submit">Supprimer la tâche</button>
+        </form>
+
+    {{ form_end(form) }}
+</div>
 {% endblock %}

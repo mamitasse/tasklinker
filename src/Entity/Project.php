@@ -28,9 +28,14 @@ class Project
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: Task::class, orphanRemoval: true)]
     private Collection $tasks;
 
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'projects')]
+    #[ORM\JoinTable(name: 'project_user')]
+    private Collection $users;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
+        $this->users = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -39,15 +44,9 @@ class Project
         return (string) ($this->name ?? '');
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
+    public function getName(): ?string { return $this->name; }
 
     public function setName(string $name): self
     {
@@ -55,10 +54,7 @@ class Project
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
+    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
@@ -66,10 +62,7 @@ class Project
         return $this;
     }
 
-    public function getArchivedAt(): ?\DateTimeImmutable
-    {
-        return $this->archivedAt;
-    }
+    public function getArchivedAt(): ?\DateTimeImmutable { return $this->archivedAt; }
 
     public function setArchivedAt(?\DateTimeImmutable $archivedAt): self
     {
@@ -88,21 +81,25 @@ class Project
         return $this->tasks;
     }
 
-    public function addTask(Task $task): self
+    /** @return Collection<int, User> */
+    public function getUsers(): Collection
     {
-        if (!$this->tasks->contains($task)) {
-            $this->tasks->add($task);
-            $task->setProject($this);
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addProject($this);
         }
         return $this;
     }
 
-    public function removeTask(Task $task): self
+    public function removeUser(User $user): self
     {
-        if ($this->tasks->removeElement($task)) {
-            if ($task->getProject() === $this) {
-                $task->setProject(null);
-            }
+        if ($this->users->removeElement($user)) {
+            $user->removeProject($this);
         }
         return $this;
     }
