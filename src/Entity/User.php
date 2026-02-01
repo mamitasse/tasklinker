@@ -2,35 +2,38 @@
 
 namespace App\Entity;
 
-// Repository associé à cette entité (sert à faire des requêtes sur User)
 use App\Repository\UserRepository;
-
-// Collections Doctrine pour gérer les relations (ManyToMany ici)
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-
-// Annotations modernes Doctrine (PHP 8 attributes)
 use Doctrine\ORM\Mapping as ORM;
+
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * ============================
- * ENTITÉ USER
+ * ENTITÉ USER (Employé)
  * ============================
- * Représente un utilisateur de l’application TaskLinker
+ * Représente un employé de BeWize dans TaskLinker.
+ * En V2, cette entité devient aussi l'utilisateur de sécurité Symfony :
+ * - email = identifiant de connexion
+ * - password = mot de passe hashé
+ * - roles = permissions (collaborateur / chef de projet)
  */
-#[ORM\Entity(repositoryClass: UserRepository::class)] // Cette classe est une entité Doctrine
-#[ORM\Table(name: '`user`')] // Nom de la table en base (user est un mot réservé → backticks)
-class User
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+#[UniqueEntity(fields: ['email'], message: 'Cet e-mail est déjà utilisé.')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * ============================
      * IDENTIFIANT
      * ============================
      */
-
-    #[ORM\Id] // Clé primaire
-    #[ORM\GeneratedValue] // Auto-incrémentée
-    #[ORM\Column] // Colonne en base
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private ?int $id = null;
 
     /**
@@ -38,62 +41,79 @@ class User
      * INFORMATIONS PERSONNELLES
      * ============================
      */
+    #[ORM\Column(length: 100)]
+    private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    private ?string $firstName = null; // Prénom de l’utilisateur
-
-    #[ORM\Column(length: 100)]
-    private ?string $lastName = null; // Nom de famille
+    private ?string $lastName = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    private ?string $email = null; // Email unique (login logique)
+    private ?string $email = null;
+
+    /**
+     * ============================
+     * SÉCURITÉ (V2)
+     * ============================
+     */
+
+    /**
+     * Rôles Symfony.
+     * - ROLE_USER : collaborateur (par défaut)
+     * - ROLE_MANAGER (ou ROLE_PROJECT_MANAGER) : chef de projet
+     */
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
+    /**
+     * Mot de passe hashé.
+     * (Ne jamais stocker le mot de passe en clair)
+     */
+    #[ORM\Column]
+    private ?string $password = null;
 
     /**
      * ============================
      * INFORMATIONS PROFESSIONNELLES
      * ============================
      */
-
-    // Statut du contrat (CDI, CDD, Freelance, etc.)
-    // → exigé par les specs du projet TaskLinker
     #[ORM\Column(length: 50)]
     private ?string $contractStatus = null;
 
-    // Date d’entrée dans l’entreprise
-    // → DateTimeImmutable = date non modifiable (bonne pratique)
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $hiredAt = null;
 
     /**
      * ============================
-     * RELATION AVEC PROJECT
+     * RELATIONS
      * ============================
      */
 
-    // Un utilisateur peut appartenir à plusieurs projets
-    // Un projet peut avoir plusieurs utilisateurs
-    #[ORM\ManyToMany(
-        targetEntity: Project::class,
-        mappedBy: 'users' // correspond à la propriété $users dans Project
-    )]
+    /**
+     * Un user peut être associé à plusieurs projets (ManyToMany)
+     */
+    #[ORM\ManyToMany(targetEntity: Project::class, mappedBy: 'users')]
     private Collection $projects;
 
     /**
-     * ============================
-     * CONSTRUCTEUR
-     * ============================
+     * ✅ IMPORTANT (fix Doctrine) :
+     * Un user peut être assigné à plusieurs tâches (OneToMany)
+     * => correspond à Task::$assignee (ManyToOne)
+     *
+     * Sans cette propriété, Doctrine dit :
+     * "Task#assignee refers to inverse side User#tasks which does not exist"
      */
+    #[ORM\OneToMany(mappedBy: 'assignee', targetEntity: Task::class)]
+    private Collection $tasks;
+
     public function __construct()
     {
-        // Initialisation obligatoire des collections Doctrine
         $this->projects = new ArrayCollection();
+        $this->tasks = new ArrayCollection(); // ✅ ajout indispensable
     }
 
-    /**
-     * ============================
-     * GETTERS / SETTERS
-     * ============================
-     */
+    // ============================
+    // GETTERS / SETTERS
+    // ============================
 
     public function getId(): ?int
     {
@@ -109,7 +129,7 @@ class User
     public function setFirstName(string $firstName): self
     {
         $this->firstName = $firstName;
-        return $this; // permet le chaînage ->setFirstName()->setLastName()
+        return $this;
     }
 
     // -------- Last name --------
@@ -165,27 +185,20 @@ class User
      * RELATION PROJECTS
      * ============================
      */
-
-    /**
-     * @return Collection<int, Project>
-     */
+    /** @return Collection<int, Project> */
     public function getProjects(): Collection
     {
         return $this->projects;
     }
 
-    // Ajoute un projet à l’utilisateur
     public function addProject(Project $project): self
     {
-        // On évite les doublons
         if (!$this->projects->contains($project)) {
             $this->projects->add($project);
         }
-
         return $this;
     }
 
-    // Supprime un projet de l’utilisateur
     public function removeProject(Project $project): self
     {
         $this->projects->removeElement($project);
@@ -194,20 +207,77 @@ class User
 
     /**
      * ============================
-     * MÉTHODES UTILITAIRES
+     * RELATION TASKS (nouveau)
      * ============================
      */
 
-    // Prénom + nom (utile pour l’affichage)
+    /** @return Collection<int, Task> */
+    public function getTasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    /**
+     * ============================
+     * MÉTHODES UTILITAIRES
+     * ============================
+     */
     public function getFullName(): string
     {
         return trim(($this->firstName ?? '') . ' ' . ($this->lastName ?? ''));
     }
 
-    // Conversion automatique en string
-    // → utilisée dans les formulaires Symfony (EntityType)
     public function __toString(): string
     {
         return $this->getFullName();
+    }
+
+    /**
+     * ============================
+     * MÉTHODES SECURITY (Symfony)
+     * ============================
+     */
+
+    public function getUserIdentifier(): string
+    {
+        // Symfony utilise ce champ comme identifiant (login)
+        return (string) $this->email;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRoles(): array
+    {
+        // Toujours au minimum ROLE_USER
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+
+        return array_values(array_unique($roles));
+    }
+
+    /**
+     * @param string[] $roles
+     */
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return (string) $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Si plus tard tu stockes un "plainPassword" temporaire, tu le nettoieras ici.
     }
 }

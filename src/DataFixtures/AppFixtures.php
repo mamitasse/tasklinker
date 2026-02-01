@@ -8,20 +8,31 @@ use App\Entity\Task;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AppFixtures extends Fixture
 {
+    private UserPasswordHasherInterface $hasher;
+
+    public function __construct(UserPasswordHasherInterface $hasher)
+    {
+        $this->hasher = $hasher;
+    }
+
     public function load(ObjectManager $manager): void
     {
         // =========================
-        // 1) USERS
+        // 1) USERS (avec password + roles)
         // =========================
+
         $natalie = (new User())
             ->setFirstName('Natalie')
             ->setLastName('Dillon')
             ->setEmail('natalie@driblet.com')
             ->setContractStatus('CDI')
-            ->setHiredAt(new \DateTimeImmutable('2019-06-14'));
+            ->setHiredAt(new \DateTimeImmutable('2019-06-14'))
+            ->setRoles(['ROLE_MANAGER']);
+        $natalie->setPassword($this->hasher->hashPassword($natalie, 'password'));
         $manager->persist($natalie);
 
         $demi = (new User())
@@ -29,7 +40,9 @@ final class AppFixtures extends Fixture
             ->setLastName('Baker')
             ->setEmail('demi@driblet.com')
             ->setContractStatus('CDD')
-            ->setHiredAt(new \DateTimeImmutable('2021-02-01'));
+            ->setHiredAt(new \DateTimeImmutable('2021-02-01'))
+            ->setRoles(['ROLE_USER']);
+        $demi->setPassword($this->hasher->hashPassword($demi, 'password'));
         $manager->persist($demi);
 
         $marie = (new User())
@@ -37,15 +50,17 @@ final class AppFixtures extends Fixture
             ->setLastName('Dupont')
             ->setEmail('marie@driblet.com')
             ->setContractStatus('Freelance')
-            ->setHiredAt(new \DateTimeImmutable('2020-09-10'));
+            ->setHiredAt(new \DateTimeImmutable('2020-09-10'))
+            ->setRoles(['ROLE_USER']);
+        $marie->setPassword($this->hasher->hashPassword($marie, 'password'));
         $manager->persist($marie);
 
         // =========================
         // 2) STATUTS
         // =========================
-        $statusTodo = (new Status())->setLabel('To Do');
+        $statusTodo  = (new Status())->setLabel('To Do');
         $statusDoing = (new Status())->setLabel('Doing');
-        $statusDone = (new Status())->setLabel('Done');
+        $statusDone  = (new Status())->setLabel('Done');
 
         $manager->persist($statusTodo);
         $manager->persist($statusDoing);

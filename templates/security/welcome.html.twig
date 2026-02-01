@@ -1,0 +1,23 @@
+{# tem{% extends 'security/base-logout.html.twig' %}
+plates/welcome.html.twig #}
+{% extends 'security/base-logout.html.twig' %}
+
+
+{% block title %}Bienvenue sur TaskLinker{% endblock %}
+
+{% block body %}
+    <header>
+        <div id="current-user"></div>
+        <div id="title-page">
+            <h1>Bienvenue sur TaskLinker</h1>
+        </div>
+    </header>
+
+    <div id="content">
+        <p>Votre compte a été créé. Vous pouvez maintenant vous connecter pour accéder à TaskLinker.</p>
+
+        <a class="button button-submit" href="{{ path('app_login') }}">
+            Se connecter
+        </a>
+    </div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'security/base-logout.html.twig' %}
+
+{% block title %}Inscription - TaskLinker{% endblock %}
+
+{% block body %}
+<header>
+    <div id="current-user"></div>
+
+    <div id="title-page">
+        <h1>Inscription</h1>
+    </div>
+</header>
+
+<div id="content">
+    {{ form_start(registrationForm) }}
+
+        <div>
+            {{ form_label(registrationForm.lastName, 'Nom', { label_attr: { class: 'required' } }) }}
+            {{ form_widget(registrationForm.lastName) }}
+            {{ form_errors(registrationForm.lastName) }}
+        </div>
+
+        <div>
+            {{ form_label(registrationForm.firstName, 'Prénom', { label_attr: { class: 'required' } }) }}
+            {{ form_widget(registrationForm.firstName) }}
+            {{ form_errors(registrationForm.firstName) }}
+        </div>
+
+        <div>
+            {{ form_label(registrationForm.email, 'E-mail', { label_attr: { class: 'required' } }) }}
+            {{ form_widget(registrationForm.email) }}
+            {{ form_errors(registrationForm.email) }}
+        </div>
+
+        <div>
+            {{ form_label(registrationForm.plainPassword.first, 'Mot de passe', { label_attr: { class: 'required' } }) }}
+            {{ form_widget(registrationForm.plainPassword.first) }}
+            {{ form_errors(registrationForm.plainPassword.first) }}
+        </div>
+
+        <div>
+            {{ form_label(registrationForm.plainPassword.second, 'Confirmation du mot de passe', { label_attr: { class: 'required' } }) }}
+            {{ form_widget(registrationForm.plainPassword.second) }}
+            {{ form_errors(registrationForm.plainPassword.second) }}
+        </div>
+
+        <br>
+
+        <button class="button button-submit">S’inscrire</button>
+
+    {{ form_end(registrationForm) }}
+</div>
+{% endblock %}
