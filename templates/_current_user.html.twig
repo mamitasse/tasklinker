@@ -1,0 +1,9 @@
+{# templates/_current_user.html.twig #}
+{% if app.user %}
+    {# Initiales = 1ère lettre prénom + 1ère lettre nom #}
+    {% set initials = (app.user.firstName|first|upper ~ app.user.lastName|first|upper) %}
+
+    <a href="{{ path('app_logout') }}" class="current-user-avatar" title="Se déconnecter">
+        {{ initials }}
+    </a>
+{% endif %}

@@ -12,11 +12,16 @@ final class SecurityController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // dernier username saisi (email)
-        $lastUsername = $authenticationUtils->getLastUsername();
+        // Si déjà connecté → on l’envoie vers les projets
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_project_index');
+        }
 
-        // erreur éventuelle
+        // Dernière erreur de login (si échec)
         $error = $authenticationUtils->getLastAuthenticationError();
+
+        // Dernier username saisi (email)
+        $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
@@ -27,7 +32,7 @@ final class SecurityController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
-        // Symfony intercepte cette route automatiquement (logout dans security.yaml)
+        // Symfony intercepte automatiquement cette route
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

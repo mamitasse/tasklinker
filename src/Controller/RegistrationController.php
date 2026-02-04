@@ -21,10 +21,8 @@ final class RegistrationController extends AbstractController
     ): Response {
         $user = new User();
 
-        // ✅ ÉNONCÉ : date d'arrivée = aujourd'hui
-        $user->setHiredAt(new \DateTimeImmutable());
-
-        // ✅ ÉNONCÉ : statut = "CDI"
+        // ÉNONCÉ : date d'arrivée = aujourd'hui, statut = CDI
+        $user->setHiredAt(new \DateTimeImmutable('today'));
         $user->setContractStatus('CDI');
 
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -33,7 +31,6 @@ final class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $plainPassword = (string) $form->get('plainPassword')->getData();
 
-            // ✅ ÉNONCÉ : hasher le mot de passe
             $user->setPassword(
                 $passwordHasher->hashPassword($user, $plainPassword)
             );
@@ -41,8 +38,7 @@ final class RegistrationController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            // ✅ IMPORTANT : NE PAS connecter automatiquement l'utilisateur
-            // ✅ On renvoie vers welcome (page publique)
+            // IMPORTANT (énoncé) : on NE connecte PAS automatiquement
             return $this->redirectToRoute('app_welcome');
         }
 

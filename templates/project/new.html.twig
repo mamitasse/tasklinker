@@ -4,7 +4,9 @@
 
 {% block body %}
 <header>
-    <div id="current-user"></div>
+    <div id="current-user">
+    {{ include('_current_user.html.twig') }}
+</div>
 
     <div id="title-page">
         <h1>Nouveau projet</h1>

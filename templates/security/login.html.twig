@@ -4,7 +4,9 @@
 
 {% block body %}
 <header>
-    <div id="current-user"></div>
+   <div id="current-user">
+    {{ include('_current_user.html.twig') }}
+</div>
 
     <div id="title-page">
         <h1>Connexion</h1>
@@ -12,34 +14,31 @@
 </header>
 
 <div id="content">
-
     {% if error %}
-        <div class="alert">
-            {{ error.messageKey|trans(error.messageData, 'security') }}
+        <div class="alert alert-danger">
+            Identifiants invalides.
         </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" action="{{ path('app_login') }}">
         <div>
-            <label for="inputEmail" class="required">E-mail</label>
+            <label for="inputEmail">E-mail</label>
             <input
                 type="email"
                 value="{{ last_username }}"
                 name="email"
                 id="inputEmail"
-                autocomplete="email"
                 required
                 autofocus
             />
         </div>
 
         <div>
-            <label for="inputPassword" class="required">Mot de passe</label>
+            <label for="inputPassword">Mot de passe</label>
             <input
                 type="password"
                 name="password"
                 id="inputPassword"
-                autocomplete="current-password"
                 required
             />
         </div>
@@ -47,10 +46,7 @@
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
         <br>
-
-        <button class="button button-submit" type="submit">
-            Se connecter
-        </button>
+        <button class="button button-submit" type="submit">Se connecter</button>
     </form>
 </div>
 {% endblock %}

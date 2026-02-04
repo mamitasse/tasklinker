@@ -529,3 +529,18 @@ form .select2-container--default .select2-selection--multiple .select2-selection
         padding: 13px;
     }
 }
+.current-user-avatar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#1abc9c;
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+}
+.current-user-avatar:hover{
+  filter: brightness(0.95);
+}
