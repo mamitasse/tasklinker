@@ -1,20 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ user.fullName }} - TaskLinker{% endblock %}
+{% block page_title %}{{ user.fullName }}{% endblock %}
 
 {% block body %}
-<header>
-   <div id="current-user">
-    {{ include('_current_user.html.twig') }}
-</div>
 
-    <div id="title-page">
-        <h1>{{ user.fullName }}</h1>
-    </div>
-</header>
-
-<div id="content">
     {{ form_start(form) }}
+
         <div>
             {{ form_label(form.lastName) }}
             {{ form_widget(form.lastName) }}
@@ -39,6 +31,7 @@
                 {{ form_widget(form.hiredAt) }}
                 {{ form_errors(form.hiredAt) }}
             </div>
+
             <div>
                 {{ form_label(form.contractStatus) }}
                 {{ form_widget(form.contractStatus) }}
@@ -47,6 +40,7 @@
         </div>
 
         <button class="button button-submit">Enregistrer</button>
+
     {{ form_end(form) }}
-</div>
+
 {% endblock %}

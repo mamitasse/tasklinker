@@ -544,3 +544,199 @@ form .select2-container--default .select2-selection--multiple .select2-selection
 .current-user-avatar:hover{
   filter: brightness(0.95);
 }
+header{
+  position: relative;
+}
+
+.header-right{
+  position: absolute;
+  top: 30px;
+  right: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.current-user-avatar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  background:#1C5B50;
+  color:#fff;
+  font-weight:800;
+  font-size:18px;
+  text-decoration:none;
+  border: 2px solid #DCFDAD;
+}
+
+.current-user-avatar:hover{
+  filter: brightness(1.05);
+}
+/* HEADER global : titre à gauche + avatar à droite */
+header.main-header{
+    background:#4D8077;
+    height:155px;
+    padding:30px 80px 10px 80px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+}
+
+header.main-header #title-page h1{
+    margin:0;
+}
+
+/* Zone droite */
+header.main-header .header-right{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    height:55px;
+}
+
+/* Avatar (plus visible) */
+.current-user-avatar{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    background:#1C5B50;
+    border:2px solid #DCFDAD;
+    color:#fff;
+    font-weight:800;
+    text-decoration:none;
+    font-size:16px;
+}
+
+.current-user-avatar:hover{
+    filter: brightness(0.95);
+}
+/* HEADER : gauche (titre + actions) / droite (avatar) */
+.header-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:100%;
+  gap:20px;
+}
+
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:25px;
+  min-width:0;
+}
+
+.header-left-actions{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+}
+
+/* Bouton Modifier dans le header (ne prend pas toute la largeur) */
+header .header-left-actions .button{
+  height:44px;
+  padding:0 18px;
+  white-space:nowrap;
+}
+
+/* Avatar connecté toujours à droite, bien visible */
+header .current-user-avatar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:#1C5B50;
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+  border:2px solid #DCFDAD;
+}
+header .current-user-avatar:hover{
+  filter: brightness(0.95);
+}
+/* === HEADER : correction bouton Modifier === */
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Le conteneur des actions */
+.header-left-actions {
+    display: flex;
+    align-items: center;
+}
+
+/* Bouton Modifier DANS le header uniquement */
+header .header-left-actions .button {
+    width: auto !important;
+    min-width: unset !important;
+    height: 42px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    margin: 0;
+}
+/* ===== HEADER BAR ===== */
+
+.header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Titre à gauche */
+#title-page h1 {
+    margin: 0;
+    white-space: nowrap;
+}
+
+/* Zone actions (Modifier + avatar) */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Bouton Modifier : NE JAMAIS pleine largeur */
+.header-actions .button {
+    width: auto !important;
+    min-width: unset !important;
+    height: 40px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+/* Avatar */
+.current-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1C5B50;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}

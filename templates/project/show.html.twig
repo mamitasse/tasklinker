@@ -1,157 +1,144 @@
 {% extends 'base.html.twig' %}
 
+{# ✅ Le titre de l'onglet navigateur #}
 {% block title %}{{ project.name }} - TaskLinker{% endblock %}
 
+{# ✅ Le titre du header vert (dans base.html.twig, à gauche) #}
+{% block page_title %}{{ project.name }}{% endblock %}
+
+{# ✅ Le bouton "Modifier" DANS le header vert (à côté du titre) #}
+{% block header_actions %}
+    <a class="button" href="{{ path('app_project_edit', { id: project.id }) }}">Modifier</a>
+{% endblock %}
+
 {% block body %}
-<header>
-<div id="current-user">
-    {{ include('_current_user.html.twig') }}
-</div>
 
+<div id="tasks-container">
 
-    <div id="title-page">
-        <div class="flex-header">
-            <h1>{{ project.name }}</h1>
+    {# =========================
+       Colonne TO DO
+       ========================= #}
+    <div class="task-column kanban-column" data-status="todo">
+        <h2>To Do</h2>
+        <div class="tasks-list">
+            {% for task in todo %}
+                <a class="task task-card"
+                   draggable="true"
+                   data-id="{{ task.id }}"
+                   href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
+                    <h3>{{ task.title }}</h3>
 
-            <div class="user-list">
-                <div class="avatar">ND</div>
-                <div class="avatar">DB</div>
-            </div>
+                    {% if task.description %}
+                        <p>{{ task.description }}</p>
+                    {% endif %}
 
-            <a class="button" href="{{ path('app_project_edit', { id: project.id }) }}">Modifier</a>
+                    <div class="task-infos">
+                        {% if task.deadline %}
+                            <div class="task-deadline">
+                                <i class="fa-regular fa-calendar"></i> {{ task.deadline|date('d/m/Y') }}
+                            </div>
+                        {% endif %}
+
+                        {% if task.assignee %}
+                            <div class="mini-user">
+                                {{ task.assignee.firstName|first|upper }}{{ task.assignee.lastName|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+
+            <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
+                + Ajouter une tâche
+            </a>
         </div>
     </div>
-</header>
 
-<div id="content">
-    <div id="tasks-container">
+    {# =========================
+       Colonne DOING
+       ========================= #}
+    <div class="task-column kanban-column" data-status="doing">
+        <h2>Doing</h2>
+        <div class="tasks-list">
+            {% for task in doing %}
+                <a class="task task-card"
+                   draggable="true"
+                   data-id="{{ task.id }}"
+                   href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
+                    <h3>{{ task.title }}</h3>
 
-        {# =========================
-           Colonne TO DO
-           ========================= #}
-        <div class="task-column kanban-column" data-status="todo">
-            <h2>To Do</h2>
-            <div class="tasks-list">
-                {% for task in todo %}
-                    <a class="task task-card"
-                       draggable="true"
-                       data-id="{{ task.id }}"
-                       href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
-                        <h3>{{ task.title }}</h3>
+                    {% if task.description %}
+                        <p>{{ task.description }}</p>
+                    {% endif %}
 
-                        {% if task.description %}
-                            <p>{{ task.description }}</p>
+                    <div class="task-infos">
+                        {% if task.deadline %}
+                            <div class="task-deadline">
+                                <i class="fa-regular fa-calendar"></i> {{ task.deadline|date('d/m/Y') }}
+                            </div>
                         {% endif %}
 
-                        <div class="task-infos">
-                            {% if task.deadline %}
-                                <div class="task-deadline">
-                                    <i class="fa-regular fa-calendar"></i> {{ task.deadline|date('d/m/Y') }}
-                                </div>
-                            {% endif %}
-
-                            {% if task.assignee %}
-                                <div class="mini-user">
-                                    {{ task.assignee.firstName|first|upper }}{{ task.assignee.lastName|first|upper }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </a>
-                {% endfor %}
-
-                <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
-                    + Ajouter une tâche
-                </a>
-            </div>
-        </div>
-
-        {# =========================
-           Colonne DOING
-           ========================= #}
-        <div class="task-column kanban-column" data-status="doing">
-            <h2>Doing</h2>
-            <div class="tasks-list">
-                {% for task in doing %}
-                    <a class="task task-card"
-                       draggable="true"
-                       data-id="{{ task.id }}"
-                       href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
-                        <h3>{{ task.title }}</h3>
-
-                        {% if task.description %}
-                            <p>{{ task.description }}</p>
+                        {% if task.assignee %}
+                            <div class="mini-user">
+                                {{ task.assignee.firstName|first|upper }}{{ task.assignee.lastName|first|upper }}
+                            </div>
                         {% endif %}
-
-                        <div class="task-infos">
-                            {% if task.deadline %}
-                                <div class="task-deadline">
-                                    <i class="fa-regular fa-calendar"></i> {{ task.deadline|date('d/m/Y') }}
-                                </div>
-                            {% endif %}
-
-                            {% if task.assignee %}
-                                <div class="mini-user">
-                                    {{ task.assignee.firstName|first|upper }}{{ task.assignee.lastName|first|upper }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </a>
-                {% endfor %}
-
-                <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
-                    + Ajouter une tâche
+                    </div>
                 </a>
-            </div>
+            {% endfor %}
+
+            <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
+                + Ajouter une tâche
+            </a>
         </div>
-
-        {# =========================
-           Colonne DONE
-           ========================= #}
-        <div class="task-column kanban-column" data-status="done">
-            <h2>Done</h2>
-            <div class="tasks-list">
-                {% for task in done %}
-                    <a class="task task-card"
-                       draggable="true"
-                       data-id="{{ task.id }}"
-                       href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
-                        <h3>{{ task.title }}</h3>
-
-                        {% if task.description %}
-                            <p>{{ task.description }}</p>
-                        {% endif %}
-
-                        <div class="task-infos">
-                            {% if task.deadline %}
-                                <div class="task-deadline">
-                                    <i class="fa-regular fa-calendar"></i> {{ task.deadline|date('d/m/Y') }}
-                                </div>
-                            {% endif %}
-
-                            {% if task.assignee %}
-                                <div class="mini-user">
-                                    {{ task.assignee.firstName|first|upper }}{{ task.assignee.lastName|first|upper }}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </a>
-                {% endfor %}
-
-                <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
-                    + Ajouter une tâche
-                </a>
-            </div>
-        </div>
-
     </div>
+
+    {# =========================
+       Colonne DONE
+       ========================= #}
+    <div class="task-column kanban-column" data-status="done">
+        <h2>Done</h2>
+        <div class="tasks-list">
+            {% for task in done %}
+                <a class="task task-card"
+                   draggable="true"
+                   data-id="{{ task.id }}"
+                   href="{{ path('app_project_tasks_show', { projectId: project.id, id: task.id }) }}">
+                    <h3>{{ task.title }}</h3>
+
+                    {% if task.description %}
+                        <p>{{ task.description }}</p>
+                    {% endif %}
+
+                    <div class="task-infos">
+                        {% if task.deadline %}
+                            <div class="task-deadline">
+                                <i class="fa-regular fa-calendar"></i> {{ task.deadline|date('d/m/Y') }}
+                            </div>
+                        {% endif %}
+
+                        {% if task.assignee %}
+                            <div class="mini-user">
+                                {{ task.assignee.firstName|first|upper }}{{ task.assignee.lastName|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+
+            <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
+                + Ajouter une tâche
+            </a>
+        </div>
+    </div>
+
 </div>
 
-{# ================= DRAG & DROP (sans casser ton design) ================= #}
+{# ================= DRAG & DROP ================= #}
 <script>
 (() => {
     let isDragging = false;
 
-    // 1) rendre toutes les cartes draggable
     document.querySelectorAll('.task-card').forEach(card => {
         card.addEventListener('dragstart', (e) => {
             isDragging = true;
@@ -164,19 +151,13 @@
             card.classList.remove('is-dragging');
         });
 
-        // Empêche l'ouverture du lien si on est en train de drag
         card.addEventListener('click', (e) => {
-            if (isDragging) {
-                e.preventDefault();
-            }
+            if (isDragging) e.preventDefault();
         });
     });
 
-    // 2) colonnes acceptent le drop
     document.querySelectorAll('.kanban-column .tasks-list').forEach(list => {
-        list.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
+        list.addEventListener('dragover', (e) => e.preventDefault());
 
         list.addEventListener('drop', async (e) => {
             e.preventDefault();
@@ -188,18 +169,10 @@
             const card = document.querySelector(`.task-card[data-id="${taskId}"]`);
             if (!card) return;
 
-            // Déplace visuellement (UX instant)
-            // Attention : on le met avant le bouton "+ Ajouter une tâche"
             const addBtn = list.querySelector('.task-add');
-            if (addBtn) {
-                list.insertBefore(card, addBtn);
-            } else {
-                list.appendChild(card);
-            }
+            if (addBtn) list.insertBefore(card, addBtn);
+            else list.appendChild(card);
 
-            // 3) sauvegarde en base (route Symfony)
-            // IMPORTANT : ton TaskController est préfixé par /project
-            // Donc l'URL doit être /project/tasks/{id}/status
             try {
                 const res = await fetch(`/project/tasks/${taskId}/status`, {
                     method: 'POST',
@@ -211,7 +184,6 @@
                 });
 
                 if (!res.ok) {
-                    // si erreur serveur, on informe
                     console.error('Erreur update status', await res.text());
                     alert("Erreur : impossible de mettre à jour le statut.");
                 }

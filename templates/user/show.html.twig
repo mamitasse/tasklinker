@@ -1,43 +1,38 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ user.fullName }} - TaskLinker{% endblock %}
+{% block page_title %}{{ user.fullName }}{% endblock %}
+
+{% block header_actions %}
+    <a class="button" href="{{ path('app_team_edit', { id: user.id }) }}">
+        Modifier
+    </a>
+{% endblock %}
 
 {% block body %}
-<header>
-   <div id="current-user">
-    {{ include('_current_user.html.twig') }}
-</div>
 
-
-    <div id="title-page">
-        <div class="flex-header">
-            <h1>{{ user.fullName }}</h1>
-
-            <a class="button" href="{{ path('app_team_edit', { id: user.id }) }}">Modifier</a>
-        </div>
-    </div>
-</header>
-
-<div id="content">
     <p><strong>Email :</strong> {{ user.email }}</p>
     <p><strong>Statut :</strong> {{ user.contractStatus }}</p>
-    <p><strong>Date d’entrée :</strong> {{ user.hiredAt|date('d/m/Y') }}</p>
+    <p><strong>Date d'entrée :</strong> {{ user.hiredAt|date('d/m/Y') }}</p>
 
     <h2>Projets</h2>
-    {% if user.projects|length == 0 %}
-        <p>Aucun projet</p>
+
+    {% if user.projects is empty %}
+        <p>Aucun projet associé.</p>
     {% else %}
         <ul>
             {% for project in user.projects %}
                 <li>
-                    <a href="{{ path('app_project_show', { id: project.id }) }}">{{ project.name }}</a>
+                    <a href="{{ path('app_project_show', { id: project.id }) }}">
+                        {{ project.name }}
+                    </a>
                 </li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    <a href="{{ path('app_team_index') }}" class="button button-submit" style="margin-top: 16px;">
+    <a href="{{ path('app_team_index') }}" class="button" style="margin-top:20px;">
         ← Retour équipe
     </a>
-</div>
+
 {% endblock %}

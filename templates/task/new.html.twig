@@ -1,34 +1,31 @@
 {% extends 'base.html.twig' %}
 
+{# Titre onglet navigateur #}
 {% block title %}Créer une tâche - TaskLinker{% endblock %}
 
+{# Titre dans le header vert (à gauche) #}
+{% block page_title %}Créer une tâche{% endblock %}
+
 {% block body %}
-<header>
-<div id="current-user">
-    {{ include('_current_user.html.twig') }}
-</div>
 
-    <div id="title-page">
-        <h1>Créer une tâche</h1>
-    </div>
-</header>
-
-<div id="content">
     {{ form_start(form) }}
 
+        {# Titre #}
         <div>
             {{ form_label(form.title, 'Titre de la tâche') }}
             {{ form_widget(form.title) }}
             {{ form_errors(form.title) }}
         </div>
 
+        {# Description #}
         <div>
             {{ form_label(form.description, 'Description') }}
             {{ form_widget(form.description) }}
             {{ form_errors(form.description) }}
         </div>
 
-        <div class="flex-form">
+        {# Date + statut #}
+        <div class="form-flex">
             <div>
                 {{ form_label(form.deadline, 'Date') }}
                 {{ form_widget(form.deadline) }}
@@ -42,16 +39,15 @@
             </div>
         </div>
 
+        {# Membre #}
         <div>
             {{ form_label(form.assignee, 'Membre') }}
             {{ form_widget(form.assignee) }}
             {{ form_errors(form.assignee) }}
         </div>
 
-        <br>
-
-        <button class="button button-submit">Ajouter</button>
+        <button class="button button-submit">Créer</button>
 
     {{ form_end(form) }}
-</div>
+
 {% endblock %}

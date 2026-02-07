@@ -1,10 +1,19 @@
 {{ form_start(form) }}
 
-    {{ form_row(form.name) }}
+    {# Titre du projet #}
+    <div>
+        {{ form_label(form.name, 'Titre du projet') }}
+        {{ form_widget(form.name) }}
+        {{ form_errors(form.name) }}
+    </div>
 
-    {{ form_row(form.users) }}
+    {# Inviter des membres (Select2) #}
+    <div>
+        {{ form_label(form.users, 'Inviter des membres') }}
+        {{ form_widget(form.users) }}
+        {{ form_errors(form.users) }}
+    </div>
 
-    <br>
     <button class="button button-submit">
         {{ button_label|default('Continuer') }}
     </button>

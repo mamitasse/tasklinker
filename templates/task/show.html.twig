@@ -1,19 +1,12 @@
 {% extends 'base.html.twig' %}
 
+{# Titre de l'onglet navigateur #}
 {% block title %}{{ task.title }} - TaskLinker{% endblock %}
 
+{# Titre dans le header vert (à gauche) #}
+{% block page_title %}{{ task.title }}{% endblock %}
+
 {% block body %}
-<header>
-    <div id="current-user">
-    {{ include('_current_user.html.twig') }}
-</div>
-
-    <div id="title-page">
-        <h1>{{ task.title }}</h1>
-    </div>
-</header>
-
-<div id="content">
 
     {{ form_start(form) }}
 
@@ -32,7 +25,7 @@
         </div>
 
         {# Date + statut #}
-        <div class="flex-form">
+        <div class="form-flex">
             <div>
                 {{ form_label(form.deadline, 'Date') }}
                 {{ form_widget(form.deadline) }}
@@ -53,13 +46,11 @@
             {{ form_errors(form.assignee) }}
         </div>
 
-        <br>
-
         <button class="button button-submit">Modifier</button>
 
     {{ form_end(form) }}
 
-    {# Lien supprimer (prototype) -> en vrai, on déclenche un POST sécurisé #}
+    {# Supprimer #}
     <form method="post"
           action="{{ path('app_project_tasks_delete', { projectId: project.id, id: task.id }) }}"
           onsubmit="return confirm('Confirmer la suppression de cette tâche ?');"
@@ -70,5 +61,4 @@
         </button>
     </form>
 
-</div>
 {% endblock %}

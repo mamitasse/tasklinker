@@ -27,7 +27,7 @@
 <div id="main-container">
     <nav>
         <a href="{{ path('app_project_index') }}" id="logo">
-            <img src="{{ asset('img/logo.png') }}" alt="Logo TaskLinker"/>
+            <img src="{{ asset('img/logo.png') }}" alt="Logo TaskLinker" />
         </a>
 
         {% set route = app.request.attributes.get('_route') %}
@@ -48,7 +48,44 @@
     </nav>
 
     <main>
-        {% block body %}{% endblock %}
+        <header>
+            <div class="header-bar">
+                {# GAUCHE : titre + boutons de page (ex : Modifier) #}
+                <div class="header-left">
+                    <div id="title-page">
+                        <h1>{% block page_title %}{% endblock %}</h1>
+                    </div>
+
+                    <div class="header-left-actions">
+                        {% block header_actions %}{% endblock %}
+                    </div>
+                </div>
+
+                {# DROITE : avatar connecté #}
+                <div class="header-right">
+                    {% if app.user %}
+                        {% set initials =
+                            (app.user.firstName|default('')|slice(0,1)|upper)
+                            ~
+                            (app.user.lastName|default('')|slice(0,1)|upper)
+                        %}
+                        {% if initials|trim == '' %}
+                            {% set initials = app.user.email|slice(0,2)|upper %}
+                        {% endif %}
+
+                        <a href="{{ path('app_logout') }}"
+                           class="current-user-avatar"
+                           title="Se déconnecter">
+                            {{ initials }}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <div id="content">
+            {% block body %}{% endblock %}
+        </div>
     </main>
 </div>
 </body>
