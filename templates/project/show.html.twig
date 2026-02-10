@@ -1,23 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{# ✅ Le titre de l'onglet navigateur #}
 {% block title %}{{ project.name }} - TaskLinker{% endblock %}
 
-{# ✅ Le titre du header vert (dans base.html.twig, à gauche) #}
 {% block page_title %}{{ project.name }}{% endblock %}
 
-{# ✅ Le bouton "Modifier" DANS le header vert (à côté du titre) #}
+{# ✅ Bouton Modifier uniquement manager #}
 {% block header_actions %}
-    <a class="button" href="{{ path('app_project_edit', { id: project.id }) }}">Modifier</a>
+    {% if is_granted('ROLE_MANAGER') %}
+        <a class="button" href="{{ path('app_project_edit', { id: project.id }) }}">Modifier</a>
+    {% endif %}
 {% endblock %}
 
 {% block body %}
 
 <div id="tasks-container">
 
-    {# =========================
-       Colonne TO DO
-       ========================= #}
     <div class="task-column kanban-column" data-status="todo">
         <h2>To Do</h2>
         <div class="tasks-list">
@@ -48,15 +45,14 @@
                 </a>
             {% endfor %}
 
-            <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
-                + Ajouter une tâche
-            </a>
+            {% if is_granted('ROLE_MANAGER') %}
+                <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
+                    + Ajouter une tâche
+                </a>
+            {% endif %}
         </div>
     </div>
 
-    {# =========================
-       Colonne DOING
-       ========================= #}
     <div class="task-column kanban-column" data-status="doing">
         <h2>Doing</h2>
         <div class="tasks-list">
@@ -87,15 +83,14 @@
                 </a>
             {% endfor %}
 
-            <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
-                + Ajouter une tâche
-            </a>
+            {% if is_granted('ROLE_MANAGER') %}
+                <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
+                    + Ajouter une tâche
+                </a>
+            {% endif %}
         </div>
     </div>
 
-    {# =========================
-       Colonne DONE
-       ========================= #}
     <div class="task-column kanban-column" data-status="done">
         <h2>Done</h2>
         <div class="tasks-list">
@@ -126,74 +121,14 @@
                 </a>
             {% endfor %}
 
-            <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
-                + Ajouter une tâche
-            </a>
+            {% if is_granted('ROLE_MANAGER') %}
+                <a href="{{ path('app_project_tasks_new', { id: project.id }) }}" class="task-add">
+                    + Ajouter une tâche
+                </a>
+            {% endif %}
         </div>
     </div>
 
 </div>
-
-{# ================= DRAG & DROP ================= #}
-<script>
-(() => {
-    let isDragging = false;
-
-    document.querySelectorAll('.task-card').forEach(card => {
-        card.addEventListener('dragstart', (e) => {
-            isDragging = true;
-            card.classList.add('is-dragging');
-            e.dataTransfer.setData('text/plain', card.dataset.id);
-        });
-
-        card.addEventListener('dragend', () => {
-            isDragging = false;
-            card.classList.remove('is-dragging');
-        });
-
-        card.addEventListener('click', (e) => {
-            if (isDragging) e.preventDefault();
-        });
-    });
-
-    document.querySelectorAll('.kanban-column .tasks-list').forEach(list => {
-        list.addEventListener('dragover', (e) => e.preventDefault());
-
-        list.addEventListener('drop', async (e) => {
-            e.preventDefault();
-
-            const taskId = e.dataTransfer.getData('text/plain');
-            const column = list.closest('.kanban-column');
-            const newStatus = column.dataset.status;
-
-            const card = document.querySelector(`.task-card[data-id="${taskId}"]`);
-            if (!card) return;
-
-            const addBtn = list.querySelector('.task-add');
-            if (addBtn) list.insertBefore(card, addBtn);
-            else list.appendChild(card);
-
-            try {
-                const res = await fetch(`/project/tasks/${taskId}/status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-
-                if (!res.ok) {
-                    console.error('Erreur update status', await res.text());
-                    alert("Erreur : impossible de mettre à jour le statut.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erreur réseau : impossible de mettre à jour le statut.");
-            }
-        });
-    });
-})();
-</script>
 
 {% endblock %}

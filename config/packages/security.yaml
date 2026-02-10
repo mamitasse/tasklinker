@@ -2,6 +2,10 @@ security:
   password_hashers:
     App\Entity\User: 'auto'
 
+  #  Chef de projet = ROLE_MANAGER
+  role_hierarchy:
+    ROLE_MANAGER: ROLE_USER
+
   providers:
     app_user_provider:
       entity:
@@ -16,8 +20,6 @@ security:
     main:
       lazy: true
       provider: app_user_provider
-
-      # ✅ Utiliser ton authenticator existant
       custom_authenticator: App\Security\AppAuthenticator
 
       logout:
@@ -25,10 +27,18 @@ security:
         target: app_login
 
   access_control:
-    # ✅ pages publiques
+    #  pages publiques
     - { path: ^/login, roles: PUBLIC_ACCESS }
     - { path: ^/register, roles: PUBLIC_ACCESS }
     - { path: ^/welcome, roles: PUBLIC_ACCESS }
 
-    # ✅ le reste = connecté
+    #  ÉNONCÉ : seuls les chefs de projet peuvent modifier les fiches Employés
+    - { path: ^/team, roles: ROLE_MANAGER }
+
+    #  ÉNONCÉ : seuls les chefs de projet peuvent créer / modifier un projet
+    - { path: ^/project/new, roles: ROLE_MANAGER }
+    - { path: ^/project/\d+/edit, roles: ROLE_MANAGER }
+    - { path: ^/project/\d+/archive, roles: ROLE_MANAGER }
+
+    #  le reste = connecté
     - { path: ^/, roles: ROLE_USER }

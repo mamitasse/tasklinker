@@ -95,7 +95,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $projects;
 
     /**
-     * ✅ IMPORTANT (fix Doctrine) :
+     * IMPORTANT (fix Doctrine) :
      * Un user peut être assigné à plusieurs tâches (OneToMany)
      * => correspond à Task::$assignee (ManyToOne)
      *

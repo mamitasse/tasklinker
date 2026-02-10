@@ -39,18 +39,21 @@
                 </a>
             </li>
 
-            <li class="{{ route starts with 'app_team_' ? 'active' : '' }}">
-                <a href="{{ path('app_team_index') }}">
-                    <i class="fa-regular fa-user"></i> Équipe
-                </a>
-            </li>
+            {# 🔒 ÉQUIPE : UNIQUEMENT POUR LES MANAGERS #}
+            {% if is_granted('ROLE_MANAGER') %}
+                <li class="{{ route starts with 'app_team_' ? 'active' : '' }}">
+                    <a href="{{ path('app_team_index') }}">
+                        <i class="fa-regular fa-user"></i> Équipe
+                    </a>
+                </li>
+            {% endif %}
         </ul>
     </nav>
 
     <main>
         <header>
             <div class="header-bar">
-                {# GAUCHE : titre + boutons de page (ex : Modifier) #}
+
                 <div class="header-left">
                     <div id="title-page">
                         <h1>{% block page_title %}{% endblock %}</h1>
@@ -61,7 +64,6 @@
                     </div>
                 </div>
 
-                {# DROITE : avatar connecté #}
                 <div class="header-right">
                     {% if app.user %}
                         {% set initials =
@@ -69,6 +71,7 @@
                             ~
                             (app.user.lastName|default('')|slice(0,1)|upper)
                         %}
+
                         {% if initials|trim == '' %}
                             {% set initials = app.user.email|slice(0,2)|upper %}
                         {% endif %}
@@ -80,6 +83,7 @@
                         </a>
                     {% endif %}
                 </div>
+
             </div>
         </header>
 

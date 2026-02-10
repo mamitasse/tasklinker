@@ -58,7 +58,7 @@ class ProjectRepository extends ServiceEntityRepository
          * ---------------------
          * ROLE_ADMIN → accès à tous les projets
          */
-        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        if (in_array('ROLE_MANAGER', $user->getRoles(), true)) {
             return $qb->getQuery()->getResult();
         }
 

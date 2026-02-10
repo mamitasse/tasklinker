@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -33,6 +34,19 @@ final class UserType extends AbstractType
             ])
             ->add('contractStatus', TextType::class, [
                 'label' => 'Statut',
+            ])
+
+            // ✅ Rôle (Collaborateur / Chef de projet)
+            // On mappe directement sur User::$roles (array)
+            ->add('roles', ChoiceType::class, [
+                'label' => "Niveau d'accès",
+                'choices' => [
+                    'Collaborateur' => 'ROLE_USER',
+                    'Chef de projet' => 'ROLE_MANAGER',
+                ],
+                'expanded' => false,  // select
+                'multiple' => true,   // car roles est un array
+                'help' => "Chef de projet = peut gérer projets et employés.",
             ])
         ;
     }

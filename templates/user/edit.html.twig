@@ -1,43 +1,63 @@
+{# templates/team/edit.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ user.fullName }} - TaskLinker{% endblock %}
+{% block title %}Modifier - {{ user.fullName }} - TaskLinker{% endblock %}
 {% block page_title %}{{ user.fullName }}{% endblock %}
+
+{# Optionnel : bouton retour dans le header #}
+{% block header_actions %}
+    <a class="button" href="{{ path('app_team_show', { id: user.id }) }}">Retour</a>
+{% endblock %}
 
 {% block body %}
 
     {{ form_start(form) }}
 
         <div>
-            {{ form_label(form.lastName) }}
+            {{ form_label(form.lastName, 'Nom') }}
             {{ form_widget(form.lastName) }}
             {{ form_errors(form.lastName) }}
         </div>
 
         <div>
-            {{ form_label(form.firstName) }}
+            {{ form_label(form.firstName, 'Prénom') }}
             {{ form_widget(form.firstName) }}
             {{ form_errors(form.firstName) }}
         </div>
 
         <div>
-            {{ form_label(form.email) }}
+            {{ form_label(form.email, 'E-mail') }}
             {{ form_widget(form.email) }}
             {{ form_errors(form.email) }}
         </div>
 
         <div class="form-flex">
             <div>
-                {{ form_label(form.hiredAt) }}
+                {{ form_label(form.hiredAt, "Date d'entrée") }}
                 {{ form_widget(form.hiredAt) }}
                 {{ form_errors(form.hiredAt) }}
             </div>
 
             <div>
-                {{ form_label(form.contractStatus) }}
+                {{ form_label(form.contractStatus, 'Statut') }}
                 {{ form_widget(form.contractStatus) }}
                 {{ form_errors(form.contractStatus) }}
             </div>
         </div>
+
+        {# ✅ Rôle : visible uniquement pour ROLE_MANAGER #}
+        {% if is_granted('ROLE_MANAGER') %}
+            <div style="margin-top: 18px;">
+                {{ form_label(form.roles, "Niveau d'accès") }}
+                {{ form_widget(form.roles) }}
+                {{ form_errors(form.roles) }}
+
+                {# (optionnel) petit texte aide #}
+                <p style="margin-top:8px; font-size: 0.9rem; opacity: .8;">
+                    Collaborateur : accès aux projets assignés uniquement. Chef de projet : gestion des projets et de l'équipe.
+                </p>
+            </div>
+        {% endif %}
 
         <button class="button button-submit">Enregistrer</button>
 

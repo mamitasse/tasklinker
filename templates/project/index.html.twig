@@ -7,39 +7,44 @@
 
         {% for project in projects %}
             <article class="card-project">
-
                 <a href="{{ path('app_project_show', { id: project.id }) }}">
                     <h2>{{ project.name }}</h2>
                 </a>
 
-                <div class="card-project-icons">
-                    <a href="{{ path('app_project_edit', { id: project.id }) }}" title="Modifier">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
+                {# ✅ Icônes uniquement pour ROLE_MANAGER #}
+                {% if is_granted('ROLE_MANAGER') %}
+                    <div class="card-project-icons">
+                        <a href="{{ path('app_project_edit', { id: project.id }) }}" title="Modifier">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
 
-                    <a href="#"
-                       class="js-confirm-archive"
-                       data-form-id="archive-form-{{ project.id }}"
-                       title="Archiver">
-                        <i class="fa-solid fa-trash"></i>
-                    </a>
-                </div>
+                        <a href="#"
+                           class="js-confirm-archive"
+                           data-form-id="archive-form-{{ project.id }}"
+                           title="Archiver">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </div>
+
+                    <form id="archive-form-{{ project.id }}"
+                          method="post"
+                          action="{{ path('app_project_archive', { id: project.id }) }}"
+                          style="display:none;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ project.id) }}">
+                    </form>
+                {% endif %}
             </article>
-
-            <form id="archive-form-{{ project.id }}"
-                  method="post"
-                  action="{{ path('app_project_archive', { id: project.id }) }}"
-                  style="display:none;">
-                <input type="hidden" name="_token" value="{{ csrf_token('archive' ~ project.id) }}">
-            </form>
         {% endfor %}
 
-        <article class="card-project">
-            <a href="{{ path('app_project_new') }}">
-                <i class="fa-solid fa-circle-plus add-project-icon"></i>
-                <h2>Ajouter un projet</h2>
-            </a>
-        </article>
+        {# ✅ Carte "Ajouter un projet" uniquement pour ROLE_MANAGER #}
+        {% if is_granted('ROLE_MANAGER') %}
+            <article class="card-project">
+                <a href="{{ path('app_project_new') }}">
+                    <i class="fa-solid fa-circle-plus add-project-icon"></i>
+                    <h2>Ajouter un projet</h2>
+                </a>
+            </article>
+        {% endif %}
 
     </div>
 {% endblock %}
